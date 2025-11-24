@@ -100,7 +100,7 @@ const views = {
   `,
   guide: `
     <section class="card">
-      <h2>Руководство</h2>
+      <h2>Инструкция</h2>
       <p class="subtitle">Быстрый старт подключения MetalVPN.</p>
       <ol class="guide-list">
         <li>Скачайте приложение для нужной платформы.</li>

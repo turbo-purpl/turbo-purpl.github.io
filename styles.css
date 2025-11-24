@@ -1,6 +1,8 @@
 :root {
   color-scheme: dark;
-  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: "SF Pro Text", "SF Pro Display", "Inter", "Segoe UI",
+    -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Roboto", system-ui,
+    sans-serif;
   background-color: #1c1c1d;
 }
 
@@ -17,11 +19,19 @@ body {
   min-height: 100dvh;
   background-color: #1c1c1d;
   color: #f5f5f7;
+  overscroll-behavior-y: contain;
 }
 
 img {
   display: block;
   max-width: 100%;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .app-shell {
@@ -59,23 +69,32 @@ img {
 }
 
 .user-info {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   min-width: 0;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .avatar {
-  width: 42px;
-  height: 42px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  border: 2px solid #3a3a3c;
+  background: none;
+  color: #f5f5f7;
+  font-size: 28px;
+}
+
+.user-info .material-symbols-outlined {
+  font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
 }
 
 .username {
   margin: 0;
-  font-weight: 600;
   white-space: nowrap;
+  font-size: 0.95rem;
+  color: #d9d9de;
 }
 
 .balance {
@@ -302,11 +321,20 @@ img {
 .tab-button .icon {
   width: clamp(18px, 4vw, 22px);
   height: clamp(18px, 4vw, 22px);
+  font-size: clamp(20px, 4vw, 26px);
 }
 
 .tab-button span:last-child {
   line-height: 1.2;
   word-break: break-word;
+}
+
+.tab-button .material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 350, "GRAD" 0, "opsz" 24;
+}
+
+.tab-button.active .material-symbols-outlined {
+  font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
 }
 
 .tab-button.active {
@@ -320,6 +348,7 @@ img {
 @media (max-width: 520px) {
   .app-header {
     gap: 10px;
+    flex-wrap: wrap;
   }
 
   .balance {
@@ -328,6 +357,10 @@ img {
 
   .tab-button {
     padding: 4px 6px;
+  }
+
+  .username {
+    font-size: 0.9rem;
   }
 }
 
