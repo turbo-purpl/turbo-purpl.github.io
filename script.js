@@ -4,10 +4,6 @@ const content = document.querySelector("#content");
 const views = {
   home: `
     <section class="card subscription-card">
-      <div>
-        <p class="eyebrow">Подписка активна</p>
-        <h2>Metal Pro</h2>
-      </div>
       <div class="time-remaining">
         <span>Осталось</span>
         <strong>12 дней · 6 часов</strong>
@@ -18,11 +14,11 @@ const views = {
       <div class="subscription-meta">
         <div>
           <p class="label">Дата окончания</p>
-          <p>12.12.2025</p>
+          <p class="value-line">12.12.2025</p>
         </div>
         <div style="text-align: right">
           <p class="label">Следующее списание</p>
-          <p>799 ₽</p>
+          <p class="value-line">799 ₽</p>
         </div>
       </div>
     </section>
@@ -37,9 +33,19 @@ const views = {
             </linearGradient>
           </defs>
           <path
-            class="speed-path"
-            d="M0,90 C40,70 80,110 120,80 C160,50 200,60 240,90 C280,120 320,70 360,80"
+            class="speed-area"
+            d="M0,95 C60,70 120,120 180,80 C240,45 300,65 360,78 C380,82 400,70 400,70 L400,140 L0,140Z"
           />
+          <path
+            class="speed-path"
+            d="M0,95 C60,70 120,120 180,80 C240,45 300,65 360,78 C380,82 400,70 400,70"
+          />
+          <g class="speed-marker-group">
+            <circle class="speed-marker" cx="400" cy="70" r="6" />
+            <text class="speed-value" x="400" y="52" text-anchor="end">
+              480 Мбит/с
+            </text>
+          </g>
         </svg>
       </div>
       <div class="speed-meta">
@@ -56,9 +62,9 @@ const views = {
     <section class="card devices-card">
       <div>
         <p class="label">Устройств в подписке</p>
-        <p class="count">4 из 6</p>
+        <p class="count">1</p>
       </div>
-      <button class="primary-btn">Добавить устройство</button>
+      <button class="primary-btn">Добавить</button>
     </section>
   `,
   plans: `
@@ -122,6 +128,9 @@ const swapView = (viewKey) => {
     content.classList.remove("fade");
   });
 };
+
+// initial render to keep markup in sync
+swapView("home");
 
 tabButtons.forEach((button) => {
   button.addEventListener("click", () => {
