@@ -3,62 +3,62 @@ const content = document.querySelector("#content");
 
 const views = {
   home: `
-    <section class="card subscription">
-      <header>
+    <section class="card subscription-card">
+      <div>
+        <p class="eyebrow">Подписка активна</p>
         <h2>Metal Pro</h2>
-        <span class="tag">Активна</span>
-      </header>
-      <p class="subtitle">До окончания подписки осталось</p>
-      <p class="time-left">12 дней 6 часов</p>
-      <div class="progress">
-        <div class="progress-value" style="width: 72%"></div>
       </div>
-      <div class="meta">
+      <div class="time-remaining">
+        <span>Осталось</span>
+        <strong>12 дней · 6 часов</strong>
+      </div>
+      <div class="pulse-bar">
+        <span></span>
+      </div>
+      <div class="subscription-meta">
         <div>
           <p class="label">Дата окончания</p>
-          <p>06.12.2025</p>
+          <p>12.12.2025</p>
         </div>
-        <div>
+        <div style="text-align: right">
           <p class="label">Следующее списание</p>
           <p>799 ₽</p>
         </div>
       </div>
     </section>
-    <section class="card grid">
-      <article class="widget">
-        <p class="label">Активных устройств</p>
-        <p class="value">4 из 6</p>
-        <button class="text-link">Управлять</button>
-      </article>
-      <article class="widget">
-        <p class="label">Скорость</p>
-        <p class="value">480 Мбит/с</p>
-        <p class="muted">Москва · WireGuard</p>
-      </article>
-      <article class="widget">
-        <p class="label">IP-адрес</p>
-        <p class="value">91.142.89.122</p>
-        <p class="muted">Германия</p>
-      </article>
-      <article class="widget">
-        <p class="label">Безопасность</p>
-        <p class="value good">100%</p>
-        <p class="muted">Шифрование активно</p>
-      </article>
-    </section>
-    <section class="card actions">
-      <h3>Быстрые действия</h3>
-      <div class="action-buttons">
-        <button class="action">
-          <span>Продлить тариф</span>
-        </button>
-        <button class="action">
-          <span>Подключить устройство</span>
-        </button>
-        <button class="action">
-          <span>Получить поддержку</span>
-        </button>
+    <section class="card speed-card">
+      <header>Скорость</header>
+      <div class="speed-graph">
+        <svg viewBox="0 0 400 140" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="speedGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#3e88f7" />
+              <stop offset="100%" stop-color="#5fa1ff" />
+            </linearGradient>
+          </defs>
+          <path
+            class="speed-path"
+            d="M0,90 C40,70 80,110 120,80 C160,50 200,60 240,90 C280,120 320,70 360,80"
+          />
+        </svg>
       </div>
+      <div class="speed-meta">
+        <div>
+          <p class="label">Протокол</p>
+          <p>OpenVPN</p>
+        </div>
+        <div style="text-align: right">
+          <p class="label">Локация</p>
+          <p>Нидерланды</p>
+        </div>
+      </div>
+    </section>
+    <section class="card devices-card">
+      <div>
+        <p class="label">Устройств в подписке</p>
+        <p class="count">4 из 6</p>
+      </div>
+      <button class="primary-btn">Добавить устройство</button>
     </section>
   `,
   plans: `

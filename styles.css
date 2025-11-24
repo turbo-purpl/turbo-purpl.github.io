@@ -12,6 +12,12 @@
   box-sizing: border-box;
 }
 
+button {
+  -webkit-tap-highlight-color: transparent;
+  background: none;
+  border: none;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -130,10 +136,100 @@ img {
 /* Cards */
 .card {
   background-color: #2c2c2e;
-  border-radius: 20px;
+  border-radius: 18px;
   padding: 20px 24px;
   border: 1px solid #3a3a3c;
   margin-bottom: 18px;
+}
+
+.subscription-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.subscription-card .eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  color: #98989e;
+}
+
+.subscription-card h2 {
+  margin: 4px 0 0;
+  font-size: 1.4rem;
+}
+
+.time-remaining {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.time-remaining span {
+  color: #98989e;
+  font-size: 0.9rem;
+}
+
+.time-remaining strong {
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.pulse-bar {
+  position: relative;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(62, 136, 247, 0.2);
+  overflow: hidden;
+}
+
+.pulse-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(62, 136, 247, 0.2), rgba(62, 136, 247, 0.5));
+  animation: shimmer 2.8s linear infinite;
+}
+
+.pulse-bar span {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 68%;
+  background: linear-gradient(90deg, #3e88f7, #63a9ff);
+  border-radius: inherit;
+  animation: flow 4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes flow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.subscription-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.subscription-meta p {
+  margin: 0;
 }
 
 .subscription header {
@@ -193,32 +289,74 @@ img {
   color: #98989e;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
-}
-
-.widget {
-  padding: 16px;
-  border-radius: 16px;
-  border: 1px solid #3a3a3c;
+.speed-card {
   background-color: #1f1f20;
+  border-radius: 18px;
+  border: 1px solid #333;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
 }
 
-.widget .value {
-  margin: 4px 0;
-  font-size: 1.3rem;
+.speed-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.02) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+}
+
+.speed-card header {
+  font-size: 1.1rem;
   font-weight: 600;
+  margin-bottom: 14px;
 }
 
-.widget .good {
-  color: #3dd598;
+.speed-graph {
+  position: relative;
+  height: 140px;
 }
 
-.muted {
+.speed-graph svg {
+  width: 100%;
+  height: 100%;
+}
+
+.speed-path {
+  fill: none;
+  stroke: url(#speedGradient);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 400;
+  stroke-dashoffset: 0;
+  animation: dash 6s ease-in-out infinite;
+}
+
+@keyframes dash {
+  0% {
+    stroke-dashoffset: 400;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.speed-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.speed-meta p {
   margin: 0;
-  color: #98989e;
 }
 
 .text-link {
@@ -230,26 +368,33 @@ img {
   cursor: pointer;
 }
 
-.action-buttons {
+.devices-card {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   flex-wrap: wrap;
-  gap: 12px;
 }
 
-.action {
-  flex: 1 1 200px;
-  border-radius: 16px;
-  border: 1px solid #3a3a3c;
-  background-color: #1f1f20;
-  padding: 14px;
-  font-weight: 500;
-  text-align: left;
+.devices-card .count {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 6px 0 0;
+}
+
+.primary-btn {
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: 1px solid #3e88f7;
+  color: #f5f5f7;
+  background: linear-gradient(120deg, #3e88f7, #5fa1ff);
   cursor: pointer;
-  color: inherit;
+  font-weight: 600;
+  transition: opacity 0.2s ease;
 }
 
-.action:hover {
-  border-color: #5ac8fa;
+.primary-btn:active {
+  opacity: 0.8;
 }
 
 .payment-list,
