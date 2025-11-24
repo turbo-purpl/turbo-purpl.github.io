@@ -1,0 +1,344 @@
+:root {
+  color-scheme: dark;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #1c1c1d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: #1c1c1d;
+  color: #f5f5f7;
+  overflow: hidden;
+}
+
+img {
+  display: block;
+}
+
+.app-shell {
+  height: 100vh;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #1c1c1d;
+}
+
+.app-header,
+.app-footer {
+  background-color: rgba(44, 44, 46, 0.45);
+  padding: 16px 24px;
+  position: sticky;
+  overflow: hidden;
+  isolation: isolate;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+}
+
+.app-header::before,
+.app-footer::before {
+  content: none;
+}
+
+.app-header {
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 16px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.user-info > div {
+  min-width: 140px;
+}
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid #3a3a3c;
+}
+
+.username {
+  margin: 0;
+  font-weight: 600;
+}
+
+.balance {
+  text-align: right;
+  margin-left: auto;
+}
+
+.balance .label {
+  display: block;
+  color: #98989e;
+  font-size: 0.85rem;
+}
+
+.balance .amount {
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.app-main {
+  flex: 1;
+  padding: 24px 24px 130px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.card {
+  background-color: #2c2c2e;
+  border-radius: 20px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  border: 1px solid #3a3a3c;
+}
+
+.subscription header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.subscription h2 {
+  margin: 0;
+}
+
+.tag {
+  background-color: #3dd598;
+  color: #051b11;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.subtitle {
+  color: #98989e;
+  margin-bottom: 4px;
+}
+
+.time-left {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+.progress {
+  background-color: #1c1c1d;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.progress-value {
+  height: 100%;
+  background: linear-gradient(90deg, #ff5f6d, #ffc371);
+}
+
+.meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+.label {
+  color: #98989e;
+  font-size: 0.85rem;
+  margin: 0 0 4px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.widget {
+  padding: 16px;
+  border-radius: 16px;
+  background-color: #1f1f20;
+  border: 1px solid #3a3a3c;
+}
+
+.widget .value {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 4px 0;
+}
+
+.widget .good {
+  color: #3dd598;
+}
+
+.muted {
+  color: #98989e;
+  margin: 0;
+}
+
+.text-link {
+  background: none;
+  border: none;
+  color: #5ac8fa;
+  padding: 0;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.actions h3 {
+  margin-top: 0;
+}
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.action {
+  flex: 1 1 200px;
+  border: 1px solid #3a3a3c;
+  border-radius: 16px;
+  padding: 14px;
+  background-color: #1f1f20;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  font-weight: 500;
+}
+
+.action:hover {
+  border-color: #5ac8fa;
+}
+
+.payment-list,
+.guide-list {
+  margin: 16px 0;
+  padding-left: 20px;
+  color: #d1d1d6;
+  line-height: 1.6;
+}
+
+.payment-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.payment-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid #3a3a3c;
+}
+
+.guide-list li {
+  margin-bottom: 8px;
+}
+
+.app-footer {
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 24px 20px;
+}
+
+.logo {
+  font-family: "Mr Dafoe", cursive;
+  font-size: 1.8rem;
+  color: #ffffff;
+  flex-shrink: 0;
+  margin-right: 12px;
+}
+
+.tab-bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: nowrap;
+  overflow-x: hidden;
+}
+
+.tab-button {
+  background: none;
+  border: none;
+  color: #98989e;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 6px 10px;
+  flex: 1 1 0;
+  min-width: 0;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+  text-align: center;
+}
+
+.tab-button .icon {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+}
+
+.tab-button svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tab-button.active {
+  color: #ffffff;
+}
+
+.tab-button:not(.active):hover {
+  color: #dcdce0;
+}
+
+.app-main {
+  transition: opacity 0.2s ease;
+}
+
+.app-main.fade {
+  opacity: 0.5;
+}
+
+@media (max-width: 520px) {
+  .app-shell {
+    overflow-x: hidden;
+  }
+
+  .tab-button {
+    font-size: 0.8rem;
+    padding: 4px 6px;
+  }
+}
+

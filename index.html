@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MetalVPN • Личный кабинет</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Mr+Dafoe&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="user-info">
+          <img
+            class="avatar"
+            src="https://i.pravatar.cc/72?img=15"
+            alt="Аватар пользователя"
+          />
+          <div>
+            <p class="username">@metal_user</p>
+          </div>
+        </div>
+        <div class="balance">
+          <span class="label">Баланс</span>
+          <span class="amount">1 250 ₽</span>
+        </div>
+      </header>
+
+      <main class="app-main" id="content">
+        <section class="card subscription">
+          <header>
+            <h2>Metal Pro</h2>
+            <span class="tag">Активна</span>
+          </header>
+          <p class="subtitle">До окончания подписки осталось</p>
+          <p class="time-left">12 дней 6 часов</p>
+          <div class="progress">
+            <div class="progress-value" style="width: 72%"></div>
+          </div>
+          <div class="meta">
+            <div>
+              <p class="label">Дата окончания</p>
+              <p>06.12.2025</p>
+            </div>
+            <div>
+              <p class="label">Следующее списание</p>
+              <p>799 ₽</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="card grid">
+          <article class="widget">
+            <p class="label">Активных устройств</p>
+            <p class="value">4 из 6</p>
+            <button class="text-link">Управлять</button>
+          </article>
+          <article class="widget">
+            <p class="label">Скорость</p>
+            <p class="value">480 Мбит/с</p>
+            <p class="muted">Москва · WireGuard</p>
+          </article>
+          <article class="widget">
+            <p class="label">IP-адрес</p>
+            <p class="value">91.142.89.122</p>
+            <p class="muted">Германия</p>
+          </article>
+          <article class="widget">
+            <p class="label">Безопасность</p>
+            <p class="value good">100%</p>
+            <p class="muted">Шифрование активно</p>
+          </article>
+        </section>
+
+        <section class="card actions">
+          <h3>Быстрые действия</h3>
+          <div class="action-buttons">
+            <button class="action">
+              <span>Продлить тариф</span>
+            </button>
+            <button class="action">
+              <span>Подключить устройство</span>
+            </button>
+            <button class="action">
+              <span>Получить поддержку</span>
+            </button>
+          </div>
+        </section>
+      </main>
+
+      <footer class="app-footer">
+        <nav class="tab-bar" aria-label="Основная навигация">
+          <div class="logo">Metal</div>
+          <button class="tab-button active" data-view="home">
+            <span class="icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"
+                />
+              </svg>
+            </span>
+            <span>Главная</span>
+          </button>
+          <button class="tab-button" data-view="plans">
+            <span class="icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M6 4h12v16H6zM10 8h8M6 12h8M10 16h8"
+                  stroke-width="2"
+                  fill="none"
+                />
+              </svg>
+            </span>
+            <span>Тариф</span>
+          </button>
+          <button class="tab-button" data-view="billing">
+            <span class="icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M3 6h18v12H3zM3 10h18M7 14h4"
+                  stroke-width="2"
+                  fill="none"
+                />
+              </svg>
+            </span>
+            <span>Оплата</span>
+          </button>
+          <button class="tab-button" data-view="guide">
+            <span class="icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M5 4h14v16H5zM5 8h14M12 8v12"
+                  stroke-width="2"
+                  fill="none"
+                />
+              </svg>
+            </span>
+            <span>Руководство</span>
+          </button>
+        </nav>
+      </footer>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
+
