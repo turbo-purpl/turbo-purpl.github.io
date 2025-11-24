@@ -31,17 +31,18 @@ img {
 .app-header,
 .app-footer {
   background-color: rgba(44, 44, 46, 0.45);
-  padding: 16px 24px;
+  padding: 10px 18px;
   position: sticky;
   overflow: hidden;
   isolation: isolate;
   left: 0;
   right: 0;
   z-index: 5;
-  backdrop-filter: blur(22px) saturate(160%);
-  -webkit-backdrop-filter: blur(22px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: none;
 }
 
 .app-header::before,
@@ -71,8 +72,8 @@ img {
 }
 
 .avatar {
-  width: 56px;
-  height: 56px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 2px solid #3a3a3c;
 }
@@ -100,7 +101,7 @@ img {
 
 .app-main {
   flex: 1;
-  padding: 24px 24px 130px;
+  padding: 16px 16px 120px;
   overflow-y: auto;
   scroll-behavior: smooth;
 }
@@ -258,8 +259,9 @@ img {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 12px 24px 20px;
+  gap: 12px;
+  padding: 10px 18px 14px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
 }
 
 .logo {
@@ -290,7 +292,7 @@ img {
   justify-content: center;
   gap: 4px;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: clamp(0.7rem, 2.5vw, 0.9rem);
   font-weight: 500;
   padding: 6px 10px;
   flex: 1 1 0;
