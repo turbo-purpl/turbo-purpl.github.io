@@ -4,50 +4,49 @@
   background-color: #1c1c1d;
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
   background-color: #1c1c1d;
   color: #f5f5f7;
-  overflow: hidden;
 }
 
 img {
   display: block;
+  max-width: 100%;
 }
 
 .app-shell {
-  height: 100vh;
   min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  background-color: #1c1c1d;
+  background-color: inherit;
 }
 
+/* Sticky chrome */
 .app-header,
 .app-footer {
-  background-color: rgba(44, 44, 46, 0.45);
-  padding: 10px 18px;
   position: sticky;
-  overflow: hidden;
-  isolation: isolate;
+  z-index: 10;
   left: 0;
   right: 0;
-  z-index: 5;
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
+  padding: 10px 18px;
+  background-color: rgba(44, 44, 46, 0.52);
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: none;
-}
-
-.app-header::before,
-.app-footer::before {
-  content: none;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  isolation: isolate;
 }
 
 .app-header {
@@ -55,8 +54,8 @@ img {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: nowrap;
-  gap: 16px;
+  gap: 14px;
+  flex-shrink: 0;
 }
 
 .user-info {
@@ -64,16 +63,11 @@ img {
   align-items: center;
   gap: 12px;
   min-width: 0;
-  flex-shrink: 0;
-}
-
-.user-info > div {
-  min-width: 140px;
 }
 
 .avatar {
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   border: 2px solid #3a3a3c;
 }
@@ -81,43 +75,53 @@ img {
 .username {
   margin: 0;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .balance {
-  text-align: right;
   margin-left: auto;
+  text-align: right;
+  min-width: 120px;
 }
 
 .balance .label {
   display: block;
+  font-size: 0.8rem;
   color: #98989e;
-  font-size: 0.85rem;
 }
 
 .balance .amount {
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-weight: 600;
 }
 
 .app-main {
   flex: 1;
-  padding: 16px 16px 120px;
   overflow-y: auto;
   scroll-behavior: smooth;
+  padding: 18px clamp(16px, 4vw, 32px)
+    calc(110px + env(safe-area-inset-bottom));
 }
 
+.app-main.fade {
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}
+
+/* Cards */
 .card {
   background-color: #2c2c2e;
   border-radius: 20px;
   padding: 20px 24px;
-  margin-bottom: 20px;
   border: 1px solid #3a3a3c;
+  margin-bottom: 18px;
 }
 
 .subscription header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 }
 
 .subscription h2 {
@@ -125,30 +129,31 @@ img {
 }
 
 .tag {
-  background-color: #3dd598;
-  color: #051b11;
   padding: 4px 12px;
   border-radius: 999px;
   font-size: 0.85rem;
   font-weight: 600;
+  color: #051b11;
+  background-color: #3dd598;
 }
 
 .subtitle {
-  color: #98989e;
   margin-bottom: 4px;
+  color: #98989e;
 }
 
 .time-left {
-  font-size: 2rem;
-  font-weight: 600;
   margin: 0 0 12px;
+  font-size: clamp(1.5rem, 4vw, 2.1rem);
+  font-weight: 600;
 }
 
 .progress {
-  background-color: #1c1c1d;
+  width: 100%;
   height: 8px;
   border-radius: 999px;
   overflow: hidden;
+  background-color: #1c1c1d;
   margin-bottom: 16px;
 }
 
@@ -164,9 +169,9 @@ img {
 }
 
 .label {
-  color: #98989e;
-  font-size: 0.85rem;
   margin: 0 0 4px;
+  font-size: 0.85rem;
+  color: #98989e;
 }
 
 .grid {
@@ -178,14 +183,14 @@ img {
 .widget {
   padding: 16px;
   border-radius: 16px;
-  background-color: #1f1f20;
   border: 1px solid #3a3a3c;
+  background-color: #1f1f20;
 }
 
 .widget .value {
-  font-size: 1.4rem;
-  font-weight: 600;
   margin: 4px 0;
+  font-size: 1.3rem;
+  font-weight: 600;
 }
 
 .widget .good {
@@ -193,21 +198,17 @@ img {
 }
 
 .muted {
-  color: #98989e;
   margin: 0;
+  color: #98989e;
 }
 
 .text-link {
-  background: none;
-  border: none;
-  color: #5ac8fa;
+  margin-top: 8px;
   padding: 0;
-  font-size: 0.95rem;
+  border: none;
+  background: none;
+  color: #5ac8fa;
   cursor: pointer;
-}
-
-.actions h3 {
-  margin-top: 0;
 }
 
 .action-buttons {
@@ -218,14 +219,14 @@ img {
 
 .action {
   flex: 1 1 200px;
-  border: 1px solid #3a3a3c;
   border-radius: 16px;
-  padding: 14px;
+  border: 1px solid #3a3a3c;
   background-color: #1f1f20;
-  color: inherit;
-  cursor: pointer;
-  text-align: left;
+  padding: 14px;
   font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
 }
 
 .action:hover {
@@ -236,8 +237,8 @@ img {
 .guide-list {
   margin: 16px 0;
   padding-left: 20px;
-  color: #d1d1d6;
   line-height: 1.6;
+  color: #d1d1d6;
 }
 
 .payment-list {
@@ -254,67 +255,58 @@ img {
   margin-bottom: 8px;
 }
 
+/* Footer nav */
 .app-footer {
-  bottom: 0;
+  bottom: max(0px, env(safe-area-inset-bottom));
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
-  padding: 10px 18px 14px;
   padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  flex-shrink: 0;
 }
 
 .logo {
   font-family: "Mr Dafoe", cursive;
-  font-size: 1.8rem;
+  font-size: 1.7rem;
   color: #ffffff;
+  margin-right: 8px;
   flex-shrink: 0;
-  margin-right: 12px;
 }
 
 .tab-bar {
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
-  gap: 12px;
-  flex-wrap: nowrap;
-  overflow-x: hidden;
+  gap: 8px;
 }
 
 .tab-button {
-  background: none;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 6px 8px;
   border: none;
+  background: none;
   color: #98989e;
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: 4px;
   cursor: pointer;
   font-size: clamp(0.7rem, 2.5vw, 0.9rem);
   font-weight: 500;
-  padding: 6px 10px;
-  flex: 1 1 0;
-  min-width: 0;
-  white-space: nowrap;
-  transition: color 0.2s ease;
   text-align: center;
+  transition: color 0.2s ease;
 }
 
 .tab-button .icon {
-  width: 22px;
-  height: 22px;
-  display: inline-flex;
+  width: clamp(18px, 4vw, 22px);
+  height: clamp(18px, 4vw, 22px);
 }
 
-.tab-button svg {
-  width: 100%;
-  height: 100%;
-  fill: currentColor;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.tab-button span:last-child {
+  line-height: 1.2;
+  word-break: break-word;
 }
 
 .tab-button.active {
@@ -325,22 +317,29 @@ img {
   color: #dcdce0;
 }
 
-.app-main {
-  transition: opacity 0.2s ease;
-}
-
-.app-main.fade {
-  opacity: 0.5;
-}
-
 @media (max-width: 520px) {
-  .app-shell {
-    overflow-x: hidden;
+  .app-header {
+    gap: 10px;
+  }
+
+  .balance {
+    min-width: auto;
   }
 
   .tab-button {
-    font-size: 0.8rem;
     padding: 4px 6px;
+  }
+}
+
+@media (max-width: 400px) {
+  .tab-button {
+    gap: 2px;
+    font-size: 0.7rem;
+  }
+
+  .tab-button .icon {
+    width: 18px;
+    height: 18px;
   }
 }
 
