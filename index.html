@@ -19,36 +19,70 @@
   <body>
     <div class="app-shell">
       <header class="app-header">
-        <div class="user-info">
-          <span class="avatar icon material-symbols-outlined">face</span>
-          <p class="username">Incognito</p>
+        <div class="logo-wrapper">
+          <div class="logo-skeleton">Metal</div>
+          <div class="logo">Metal</div>
         </div>
-        <div class="balance">
-          <span class="label">Баланс</span>
-          <span class="amount">1 250 ₽</span>
-        </div>
+        <button class="topup-btn primary-btn" id="openTopupModal">Пополнить</button>
       </header>
 
       <main class="app-main" id="content"></main>
 
+      <!-- iOS-style modal for topup -->
+      <div class="modal-overlay" id="topupModal">
+        <div class="modal-sheet">
+          <div class="modal-handle"></div>
+          <div class="modal-header">
+            <h2>Пополнить баланс</h2>
+            <button class="modal-close" id="closeTopupModal">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          <div class="modal-content">
+            <div class="amount-selector">
+              <button class="amount-btn" data-amount="100">100 ₽</button>
+              <button class="amount-btn" data-amount="500">500 ₽</button>
+              <button class="amount-btn" data-amount="1000">1 000 ₽</button>
+              <button class="amount-btn" data-amount="2000">2 000 ₽</button>
+            </div>
+            <div class="custom-amount">
+              <label>Или введите сумму</label>
+              <input type="number" placeholder="0" min="1" class="amount-input" />
+            </div>
+            <button class="modal-primary-btn">Пополнить</button>
+          </div>
+        </div>
+      </div>
+
       <footer class="app-footer">
         <nav class="tab-bar" aria-label="Основная навигация">
-          <div class="logo">Metal</div>
           <button class="tab-button active" data-view="home">
-            <span class="icon material-symbols-outlined">home</span>
+            <span class="icon-wrapper">
+              <span class="icon-skeleton"></span>
+              <span class="icon material-symbols-outlined" style="display: none;">home</span>
+            </span>
             <span>Главная</span>
           </button>
           <button class="tab-button" data-view="plans">
-            <span class="icon material-symbols-outlined">sticky_note_2</span>
+            <span class="icon-wrapper">
+              <span class="icon-skeleton"></span>
+              <span class="icon material-symbols-outlined" style="display: none;">sticky_note_2</span>
+            </span>
             <span>Тариф</span>
           </button>
-          <button class="tab-button" data-view="billing">
-            <span class="icon material-symbols-outlined">paid</span>
-            <span>Оплата</span>
-          </button>
           <button class="tab-button" data-view="guide">
-            <span class="icon material-symbols-outlined">help_center</span>
+            <span class="icon-wrapper">
+              <span class="icon-skeleton"></span>
+              <span class="icon material-symbols-outlined" style="display: none;">help_center</span>
+            </span>
             <span>Инструкция</span>
+          </button>
+          <button class="tab-button" data-view="profile">
+            <span class="icon-wrapper">
+              <span class="icon-skeleton"></span>
+              <span class="icon material-symbols-outlined" style="display: none;">account_circle</span>
+            </span>
+            <span>Профиль</span>
           </button>
         </nav>
       </footer>
@@ -57,4 +91,3 @@
     <script src="script.js"></script>
   </body>
 </html>
-
