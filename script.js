@@ -40,7 +40,8 @@ const views = {
           <div class="devices-row">
             <p class="count">1</p>
             <button class="add-device-btn">
-              <span class="material-symbols-outlined">add</span>
+              <span class="add-icon-skeleton"></span>
+              <span class="material-symbols-outlined add-icon-loaded">add</span>
             </button>
           </div>
         </div>
@@ -95,17 +96,111 @@ const views = {
     </section>
   `,
   guide: `
-    <section class="card">
-      <h2>Инструкция</h2>
-      <p class="subtitle">Быстрый старт подключения MetalVPN.</p>
-      <ol class="guide-list">
-        <li>Скачайте приложение для нужной платформы.</li>
-        <li>Авторизуйтесь по Telegram или email.</li>
-        <li>Выберите сервер и нажмите «Подключить».</li>
-      </ol>
-      <div class="action-buttons">
-        <button class="action">Полная инструкция</button>
-        <button class="action">Чат с поддержкой</button>
+    <section class="card guide-section">
+      <h2>Инструкция по подключению</h2>
+      
+      <div class="guide-downloads">
+        <h3>Скачайте OpenVPN для вашей платформы:</h3>
+        <div class="download-links">
+          <a href="https://play.google.com/store/apps/details?id=net.openvpn.openvpn" target="_blank" class="download-link">
+            <span class="material-symbols-outlined">android</span>
+            <span>Android</span>
+          </a>
+          <a href="https://apps.apple.com/app/openvpn-connect/id590379981" target="_blank" class="download-link">
+            <span class="material-symbols-outlined">phone_iphone</span>
+            <span>iPhone / iPad</span>
+          </a>
+          <a href="https://openvpn.net/client-connect-vpn-for-windows/" target="_blank" class="download-link">
+            <span class="material-symbols-outlined">desktop_windows</span>
+            <span>Windows</span>
+          </a>
+          <a href="https://openvpn.net/client-connect-vpn-for-mac-os/" target="_blank" class="download-link">
+            <span class="material-symbols-outlined">desktop_mac</span>
+            <span>macOS</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="guide-article">
+        <h3>Как подключить файл конфигурации OpenVPN</h3>
+        
+        <div class="guide-step">
+          <h4>1. Получите файл конфигурации</h4>
+          <p>После оплаты подписки бот отправит вам файл конфигурации (обычно с расширением <code>.ovpn</code>). Сохраните этот файл на ваше устройство.</p>
+        </div>
+
+        <div class="guide-step">
+          <h4>2. Установите приложение OpenVPN</h4>
+          <p>Если вы еще не установили OpenVPN, скачайте его по ссылкам выше для вашей платформы.</p>
+        </div>
+
+        <div class="guide-step">
+          <h4>3. Импортируйте файл конфигурации</h4>
+          
+          <div class="guide-platform">
+            <strong>Android:</strong>
+            <ol>
+              <li>Откройте приложение OpenVPN Connect</li>
+              <li>Нажмите на кнопку "IMPORT" или "Импорт"</li>
+              <li>Выберите "FILE" или "Файл"</li>
+              <li>Найдите и выберите файл <code>.ovpn</code>, который отправил бот</li>
+              <li>Нажмите "ADD" или "Добавить"</li>
+            </ol>
+          </div>
+
+          <div class="guide-platform">
+            <strong>iPhone / iPad:</strong>
+            <ol>
+              <li>Откройте приложение OpenVPN Connect</li>
+              <li>Нажмите на кнопку "+" в правом верхнем углу</li>
+              <li>Выберите "Import from Files" или "Импорт из файлов"</li>
+              <li>Найдите файл <code>.ovpn</code> в приложении "Файлы"</li>
+              <li>Нажмите "ADD" или "Добавить"</li>
+            </ol>
+          </div>
+
+          <div class="guide-platform">
+            <strong>Windows:</strong>
+            <ol>
+              <li>Откройте приложение OpenVPN Connect</li>
+              <li>Нажмите на кнопку "Add Profile" или "Добавить профиль"</li>
+              <li>Выберите "File" или "Файл"</li>
+              <li>Найдите и выберите файл <code>.ovpn</code></li>
+              <li>Нажмите "Add" или "Добавить"</li>
+            </ol>
+          </div>
+
+          <div class="guide-platform">
+            <strong>macOS:</strong>
+            <ol>
+              <li>Откройте приложение OpenVPN Connect</li>
+              <li>Нажмите на кнопку "+" или "Add Profile"</li>
+              <li>Выберите "Import from file" или "Импорт из файла"</li>
+              <li>Найдите и выберите файл <code>.ovpn</code></li>
+              <li>Нажмите "Add" или "Добавить"</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <h4>4. Подключитесь к VPN</h4>
+          <p>После импорта файла конфигурации:</p>
+          <ol>
+            <li>В списке профилей найдите добавленный профиль</li>
+            <li>Нажмите на переключатель или кнопку "Connect" рядом с профилем</li>
+            <li>При первом подключении может потребоваться ввести логин и пароль (если они указаны в файле конфигурации)</li>
+            <li>Дождитесь установления соединения - индикатор станет зеленым</li>
+          </ol>
+        </div>
+
+        <div class="guide-step">
+          <h4>5. Проверьте подключение</h4>
+          <p>После успешного подключения вы увидите статус "Connected" или "Подключено". Теперь весь ваш интернет-трафик будет проходить через VPN сервер MetalVPN.</p>
+        </div>
+
+        <div class="guide-note">
+          <p><strong>Примечание:</strong> Если у вас возникли проблемы с подключением, убедитесь, что файл конфигурации не поврежден и содержит все необходимые данные. При необходимости обратитесь в поддержку.</p>
+        </div>
       </div>
     </section>
   `,
@@ -130,7 +225,8 @@ const views = {
         <div class="profile-settings-grid">
           <div class="profile-setting-item">
             <div class="setting-icon">
-              <span class="material-symbols-outlined">wallet</span>
+              <span class="setting-icon-skeleton"></span>
+              <span class="material-symbols-outlined setting-icon-loaded">wallet</span>
             </div>
             <div class="setting-label-text">Баланс</div>
             <div class="setting-value">0 ₽</div>
@@ -138,7 +234,8 @@ const views = {
           
           <div class="profile-setting-item clickable" data-setting="language">
             <div class="setting-icon">
-              <span class="material-symbols-outlined">language</span>
+              <span class="setting-icon-skeleton"></span>
+              <span class="material-symbols-outlined setting-icon-loaded">language</span>
             </div>
             <div class="setting-label-text">Язык</div>
             <div class="setting-value" id="languageValue">Русский</div>
@@ -146,7 +243,8 @@ const views = {
           
           <div class="profile-setting-item clickable" data-setting="currency">
             <div class="setting-icon">
-              <span class="material-symbols-outlined">attach_money</span>
+              <span class="setting-icon-skeleton"></span>
+              <span class="material-symbols-outlined setting-icon-loaded">attach_money</span>
             </div>
             <div class="setting-label-text">Валюта</div>
             <div class="setting-value" id="currencyValue">₽ (RUB)</div>
@@ -154,7 +252,8 @@ const views = {
           
           <div class="profile-setting-item clickable" data-setting="theme">
             <div class="setting-icon">
-              <span class="material-symbols-outlined">dark_mode</span>
+              <span class="setting-icon-skeleton"></span>
+              <span class="material-symbols-outlined setting-icon-loaded">dark_mode</span>
             </div>
             <div class="setting-label-text">Тема</div>
             <div class="setting-value" id="themeValue">Темная</div>
@@ -267,6 +366,30 @@ if (amountInput) {
   });
 }
 
+// Payment method selection (using event delegation)
+if (topupModal) {
+  topupModal.addEventListener("click", (e) => {
+    if (e.target.closest(".payment-method-btn")) {
+      const btn = e.target.closest(".payment-method-btn");
+      const paymentMethodButtons = topupModal.querySelectorAll(".payment-method-btn");
+      paymentMethodButtons.forEach((b) => b.classList.remove("selected"));
+      btn.classList.add("selected");
+    }
+  });
+  
+  // Select first payment method by default when modal opens
+  if (openTopupModal) {
+    openTopupModal.addEventListener("click", () => {
+      setTimeout(() => {
+        const paymentMethodButtons = topupModal.querySelectorAll(".payment-method-btn");
+        if (paymentMethodButtons.length > 0 && !topupModal.querySelector(".payment-method-btn.selected")) {
+          paymentMethodButtons[0].classList.add("selected");
+        }
+      }, 100);
+    });
+  }
+}
+
 if (modalPrimaryBtn) {
   modalPrimaryBtn.addEventListener("click", () => {
     const selectedAmount = document.querySelector(".amount-btn.selected");
@@ -274,7 +397,11 @@ if (modalPrimaryBtn) {
     const amount = selectedAmount
       ? selectedAmount.dataset.amount
       : customAmount || "0";
-    console.log("Пополнение на:", amount, "₽");
+    const selectedPaymentMethod = document.querySelector(".payment-method-btn.selected");
+    const paymentMethod = selectedPaymentMethod
+      ? selectedPaymentMethod.dataset.method
+      : "telegram-stars";
+    console.log("Пополнение на:", amount, "₽", "Способ оплаты:", paymentMethod);
     // Здесь будет логика пополнения
     closeModal();
   });
@@ -370,6 +497,57 @@ function initDynamicView(viewKey) {
     initPlanBuilder();
   } else if (viewKey === "profile") {
     initProfileSettings();
+  } else if (viewKey === "home") {
+    checkAddIcon();
+  }
+}
+
+function checkAddIcon() {
+  const addIconSkeleton = document.querySelector(".add-icon-skeleton");
+  const addIcon = document.querySelector(".add-icon-loaded");
+
+  if (addIconSkeleton && addIcon) {
+    // Create a test element to check if font is actually loaded
+    const testElement = document.createElement("span");
+    testElement.className = "material-symbols-outlined";
+    testElement.textContent = "add";
+    testElement.style.position = "absolute";
+    testElement.style.visibility = "hidden";
+    testElement.style.fontSize = "28px";
+    document.body.appendChild(testElement);
+
+    const checkIcon = () => {
+      // Check if Material Symbols font is actually loaded by measuring text width
+      const testWidth = testElement.offsetWidth;
+      const fallbackWidth = 28; // Approximate width with fallback font
+      
+      // Also check document.fonts API if available
+      const fontsLoaded = document.fonts && document.fonts.check
+        ? document.fonts.check('1em "Material Symbols Outlined"')
+        : false;
+
+      // Font is loaded if width is different from fallback OR fonts API confirms
+      if (testWidth !== fallbackWidth || fontsLoaded) {
+        // Double check by waiting a bit more to ensure font is fully rendered
+        setTimeout(() => {
+          addIconSkeleton.classList.add("hidden");
+          addIcon.style.display = "inline-flex";
+          document.body.removeChild(testElement);
+        }, 100);
+      } else {
+        setTimeout(checkIcon, 150);
+      }
+    };
+
+    // Wait for fonts to be ready, then start checking
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
+        setTimeout(checkIcon, 100);
+      });
+    } else {
+      // Fallback: start checking after a delay
+      setTimeout(checkIcon, 300);
+    }
   }
 }
 
@@ -385,6 +563,62 @@ function initProfileSettings() {
   
   // Загружаем сохраненные настройки для профиля
   loadSavedSettings();
+  
+  // Проверяем загрузку иконок профиля
+  checkProfileIcons();
+}
+
+function checkProfileIcons() {
+  const profileIconSkeletons = document.querySelectorAll(".setting-icon-skeleton");
+  const profileIcons = document.querySelectorAll(".setting-icon-loaded");
+
+  if (profileIconSkeletons.length && profileIcons.length) {
+    // Create a test element to check if font is actually loaded
+    const testElement = document.createElement("span");
+    testElement.className = "material-symbols-outlined";
+    testElement.textContent = "wallet";
+    testElement.style.position = "absolute";
+    testElement.style.visibility = "hidden";
+    testElement.style.fontSize = "22px";
+    document.body.appendChild(testElement);
+
+    const checkIcons = () => {
+      // Check if Material Symbols font is actually loaded by measuring text width
+      const testWidth = testElement.offsetWidth;
+      const fallbackWidth = 22; // Approximate width with fallback font
+      
+      // Also check document.fonts API if available
+      const fontsLoaded = document.fonts && document.fonts.check
+        ? document.fonts.check('1em "Material Symbols Outlined"')
+        : false;
+
+      // Font is loaded if width is different from fallback OR fonts API confirms
+      if (testWidth !== fallbackWidth || fontsLoaded) {
+        // Double check by waiting a bit more to ensure font is fully rendered
+        setTimeout(() => {
+          profileIconSkeletons.forEach((skeleton) => {
+            skeleton.classList.add("hidden");
+          });
+          profileIcons.forEach((icon) => {
+            icon.style.display = "inline-flex";
+          });
+          document.body.removeChild(testElement);
+        }, 100);
+      } else {
+        setTimeout(checkIcons, 150);
+      }
+    };
+
+    // Wait for fonts to be ready, then start checking
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
+        setTimeout(checkIcons, 100);
+      });
+    } else {
+      // Fallback: start checking after a delay
+      setTimeout(checkIcons, 300);
+    }
+  }
 }
 
 const settingsData = {
