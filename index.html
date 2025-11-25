@@ -28,6 +28,22 @@
 
       <main class="app-main" id="content"></main>
 
+      <!-- iOS-style modal for settings -->
+      <div class="modal-overlay" id="settingsModal">
+        <div class="modal-sheet">
+          <div class="modal-handle"></div>
+          <div class="modal-header">
+            <h2 id="settingsModalTitle">Настройка</h2>
+            <button class="modal-close" id="closeSettingsModal">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          <div class="modal-content">
+            <div class="settings-options" id="settingsOptions"></div>
+          </div>
+        </div>
+      </div>
+
       <!-- iOS-style modal for topup -->
       <div class="modal-overlay" id="topupModal">
         <div class="modal-sheet">

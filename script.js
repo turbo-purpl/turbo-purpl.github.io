@@ -51,7 +51,7 @@ const views = {
     <section class="plan-builder">
       <div class="plan-field">
         <p class="label">Протокол</p>
-        <div class="segmented segmented-disabled">
+        <div class="segmented">
           <button class="segment active" data-type="protocol" data-value="openvpn">OpenVPN</button>
         </div>
       </div>
@@ -110,15 +110,91 @@ const views = {
     </section>
   `,
   profile: `
-    <section class="card">
-      <h2>Профиль</h2>
-      <p class="subtitle">Управление аккаунтом и настройками.</p>
-      <div class="action-buttons">
-        <button class="action">Редактировать профиль</button>
-        <button class="action">Настройки безопасности</button>
-        <button class="action">Выйти</button>
+    <div class="profile-container">
+      <div class="profile-cover">
+        <div class="profile-cover-grid"></div>
+        <div class="new-year-decoration decoration-tree">🎄</div>
+        <div class="new-year-decoration decoration-champagne">🍾</div>
+        <div class="new-year-decoration decoration-snowflake">❄</div>
+        <div class="new-year-decoration decoration-gift">🎁</div>
+        <div class="new-year-decoration decoration-star">⭐</div>
       </div>
-    </section>
+      <div class="profile-avatar-wrapper">
+        <div class="profile-avatar">
+          <span class="material-symbols-outlined">account_circle</span>
+        </div>
+      </div>
+      <div class="profile-username">Incognito</div>
+      
+      <section class="card profile-settings-card">
+        <div class="profile-settings-grid">
+          <div class="profile-setting-item">
+            <div class="setting-icon">
+              <span class="material-symbols-outlined">wallet</span>
+            </div>
+            <div class="setting-label-text">Баланс</div>
+            <div class="setting-value">0 ₽</div>
+          </div>
+          
+          <div class="profile-setting-item clickable" data-setting="language">
+            <div class="setting-icon">
+              <span class="material-symbols-outlined">language</span>
+            </div>
+            <div class="setting-label-text">Язык</div>
+            <div class="setting-value" id="languageValue">Русский</div>
+          </div>
+          
+          <div class="profile-setting-item clickable" data-setting="currency">
+            <div class="setting-icon">
+              <span class="material-symbols-outlined">attach_money</span>
+            </div>
+            <div class="setting-label-text">Валюта</div>
+            <div class="setting-value" id="currencyValue">₽ (RUB)</div>
+          </div>
+          
+          <div class="profile-setting-item clickable" data-setting="theme">
+            <div class="setting-icon">
+              <span class="material-symbols-outlined">dark_mode</span>
+            </div>
+            <div class="setting-label-text">Тема</div>
+            <div class="setting-value" id="themeValue">Темная</div>
+          </div>
+        </div>
+      </section>
+      
+      <section class="card profile-history-card">
+        <h3 class="history-title">История операций</h3>
+        <div class="history-list">
+          <div class="history-item">
+            <div class="history-info">
+              <div class="history-type">Пополнение</div>
+              <div class="history-date">12.12.2024</div>
+            </div>
+            <div class="history-amount positive">+500 ₽</div>
+          </div>
+          
+          <div class="history-divider"></div>
+          
+          <div class="history-item">
+            <div class="history-info">
+              <div class="history-type">Пополнение</div>
+              <div class="history-date">05.12.2024</div>
+            </div>
+            <div class="history-amount positive">+1000 ₽</div>
+          </div>
+          
+          <div class="history-divider"></div>
+          
+          <div class="history-item">
+            <div class="history-info">
+              <div class="history-type">Пополнение</div>
+              <div class="history-date">28.11.2024</div>
+            </div>
+            <div class="history-amount positive">+799 ₽</div>
+          </div>
+        </div>
+      </section>
+    </div>
   `,
 };
 
@@ -240,40 +316,294 @@ if (modalPrimaryBtn) {
   const iconElements = document.querySelectorAll(".tab-button .icon.material-symbols-outlined");
 
   if (iconSkeletons.length && iconElements.length) {
-    // Check if Material Symbols font is loaded
-    const checkIcons = () => {
-      let allLoaded = true;
-      iconElements.forEach((icon) => {
-        const computedStyle = window.getComputedStyle(icon);
-        const fontFamily = computedStyle.fontFamily;
-        if (!fontFamily.includes("Material Symbols")) {
-          allLoaded = false;
-        }
-      });
+    // Create a test element to check if font is actually loaded
+    const testElement = document.createElement("span");
+    testElement.className = "material-symbols-outlined";
+    testElement.textContent = "home";
+    testElement.style.position = "absolute";
+    testElement.style.visibility = "hidden";
+    testElement.style.fontSize = "24px";
+    document.body.appendChild(testElement);
 
-      if (allLoaded || document.fonts.check('1em "Material Symbols Outlined"')) {
-        iconSkeletons.forEach((skeleton) => {
-          skeleton.classList.add("hidden");
-        });
-        iconElements.forEach((icon) => {
-          icon.style.display = "inline-flex";
-          icon.classList.add("loaded");
-        });
+    const checkIcons = () => {
+      // Check if Material Symbols font is actually loaded by measuring text width
+      const testWidth = testElement.offsetWidth;
+      const fallbackWidth = 24; // Approximate width with fallback font
+      
+      // Also check document.fonts API if available
+      const fontsLoaded = document.fonts && document.fonts.check
+        ? document.fonts.check('1em "Material Symbols Outlined"')
+        : false;
+
+      // Font is loaded if width is different from fallback OR fonts API confirms
+      if (testWidth !== fallbackWidth || fontsLoaded) {
+        // Double check by waiting a bit more to ensure font is fully rendered
+        setTimeout(() => {
+          iconSkeletons.forEach((skeleton) => {
+            skeleton.classList.add("hidden");
+          });
+          iconElements.forEach((icon) => {
+            icon.style.display = "inline-flex";
+            icon.classList.add("loaded");
+          });
+          document.body.removeChild(testElement);
+        }, 100);
       } else {
-        setTimeout(checkIcons, 100);
+        setTimeout(checkIcons, 150);
       }
     };
 
-    // Start checking after a short delay
-    setTimeout(checkIcons, 200);
+    // Wait for fonts to be ready, then start checking
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
+        setTimeout(checkIcons, 100);
+      });
+    } else {
+      // Fallback: start checking after a delay
+      setTimeout(checkIcons, 300);
+    }
   }
 })();
 
 function initDynamicView(viewKey) {
   if (viewKey === "plans") {
     initPlanBuilder();
+  } else if (viewKey === "profile") {
+    initProfileSettings();
   }
 }
+
+function initProfileSettings() {
+  const settingItems = document.querySelectorAll(".profile-setting-item.clickable");
+  
+  settingItems.forEach((item) => {
+    item.addEventListener("click", () => {
+      const setting = item.dataset.setting;
+      openSettingsModal(setting);
+    });
+  });
+  
+  // Загружаем сохраненные настройки для профиля
+  loadSavedSettings();
+}
+
+const settingsData = {
+  language: {
+    title: "Выберите язык",
+    options: [
+      { value: "Русский", label: "Русский" },
+      { value: "English", label: "English" },
+      { value: "中文", label: "中文" },
+      { value: "Español", label: "Español" },
+    ],
+    currentValue: "Русский",
+    valueElementId: "languageValue"
+  },
+  currency: {
+    title: "Выберите валюту",
+    options: [
+      { value: "₽ (RUB)", label: "₽ (RUB)" },
+      { value: "$ (USD)", label: "$ (USD)" },
+      { value: "€ (EUR)", label: "€ (EUR)" },
+      { value: "¥ (CNY)", label: "¥ (CNY)" },
+    ],
+    currentValue: "₽ (RUB)",
+    valueElementId: "currencyValue"
+  },
+  theme: {
+    title: "Выберите тему",
+    options: [
+      { value: "Темная", label: "Темная" },
+      { value: "Светлая", label: "Светлая" },
+      { value: "Авто", label: "Авто" },
+    ],
+    currentValue: "Темная",
+    valueElementId: "themeValue"
+  }
+};
+
+function openSettingsModal(settingType) {
+  const modal = document.getElementById("settingsModal");
+  const modalTitle = document.getElementById("settingsModalTitle");
+  const optionsContainer = document.getElementById("settingsOptions");
+  const setting = settingsData[settingType];
+  
+  if (!setting) return;
+  
+  modalTitle.textContent = setting.title;
+  optionsContainer.innerHTML = "";
+  
+  setting.options.forEach((option) => {
+    const optionElement = document.createElement("button");
+    optionElement.className = "settings-option";
+    if (option.value === setting.currentValue) {
+      optionElement.classList.add("selected");
+    }
+    optionElement.textContent = option.label;
+    
+    // Добавляем иконку check для выбранной опции
+    if (option.value === setting.currentValue) {
+      const checkIcon = document.createElement("span");
+      checkIcon.className = "material-symbols-outlined settings-check-icon";
+      checkIcon.textContent = "check";
+      optionElement.appendChild(checkIcon);
+    }
+    
+    optionElement.addEventListener("click", () => {
+      selectSetting(settingType, option.value);
+      closeSettingsModal();
+    });
+    optionsContainer.appendChild(optionElement);
+  });
+  
+  modal.classList.add("active");
+}
+
+function selectSetting(settingType, value) {
+  const setting = settingsData[settingType];
+  if (!setting) return;
+  
+  setting.currentValue = value;
+  const valueElement = document.getElementById(setting.valueElementId);
+  if (valueElement) {
+    valueElement.textContent = value;
+  }
+  
+  // Применяем изменения
+  if (settingType === "theme") {
+    applyTheme(value);
+  } else if (settingType === "currency") {
+    applyCurrency(value);
+  } else if (settingType === "language") {
+    applyLanguage(value);
+  }
+  
+  // Сохраняем в localStorage
+  localStorage.setItem(`setting_${settingType}`, value);
+  console.log(`${settingType} изменен на: ${value}`);
+}
+
+function applyTheme(theme) {
+  const root = document.documentElement;
+  const body = document.body;
+  
+  // Удаляем предыдущие классы темы
+  body.classList.remove("theme-light", "theme-dark", "theme-auto");
+  
+  if (theme === "Светлая") {
+    body.classList.add("theme-light");
+    root.style.colorScheme = "light";
+  } else if (theme === "Темная") {
+    body.classList.add("theme-dark");
+    root.style.colorScheme = "dark";
+  } else if (theme === "Авто") {
+    body.classList.add("theme-auto");
+    // Используем системную тему
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    root.style.colorScheme = prefersDark ? "dark" : "light";
+  }
+}
+
+function applyCurrency(currency) {
+  // Обновляем все цены на странице
+  const currencySymbol = currency.split(" ")[0];
+  
+  // Обновляем историю операций
+  const historyAmounts = document.querySelectorAll(".history-amount");
+  historyAmounts.forEach((el) => {
+    const text = el.textContent;
+    // Ищем число (может быть с пробелами для разделения тысяч)
+    const amountMatch = text.match(/([+-]?)(\d+[\s\d]*)/);
+    if (amountMatch) {
+      const sign = amountMatch[1] || "";
+      const amount = amountMatch[2].replace(/\s/g, "");
+      const formattedAmount = parseInt(amount).toLocaleString("ru-RU");
+      el.textContent = `${sign}${formattedAmount} ${currencySymbol}`;
+    }
+  });
+  
+  // Обновляем цену в кнопке "Подключить" если она есть
+  const submitBtn = document.querySelector(".plan-submit");
+  if (submitBtn) {
+    const currentText = submitBtn.textContent;
+    // Ищем число в тексте кнопки
+    const priceMatch = currentText.match(/(\d+[\s\d]*)/);
+    if (priceMatch) {
+      const price = priceMatch[1].replace(/\s/g, "");
+      const formattedPrice = parseInt(price).toLocaleString("ru-RU");
+      submitBtn.textContent = `Подключить • ${formattedPrice} ${currencySymbol}`;
+    }
+  }
+  
+  // Обновляем цену в билдере тарифов если он открыт
+  const builder = document.querySelector(".plan-builder");
+  if (builder) {
+    // Переинициализируем билдер для обновления цены
+    setTimeout(() => {
+      initPlanBuilder();
+    }, 100);
+  }
+}
+
+function applyLanguage(language) {
+  // Здесь можно добавить логику смены языка
+  // Для демо просто сохраняем выбор
+  console.log(`Язык изменен на: ${language}`);
+  // В реальном приложении здесь была бы загрузка переводов
+}
+
+// Загружаем сохраненные настройки при загрузке
+function loadSavedSettings() {
+  Object.keys(settingsData).forEach((key) => {
+    const saved = localStorage.getItem(`setting_${key}`);
+    if (saved) {
+      const setting = settingsData[key];
+      setting.currentValue = saved;
+      const valueElement = document.getElementById(setting.valueElementId);
+      if (valueElement) {
+        valueElement.textContent = saved;
+      }
+      // Применяем настройки
+      if (key === "theme") {
+        applyTheme(saved);
+      } else if (key === "currency") {
+        applyCurrency(saved);
+      }
+    } else {
+      // Применяем настройки по умолчанию при первой загрузке
+      if (key === "theme") {
+        applyTheme(settingsData[key].currentValue);
+      }
+    }
+  });
+}
+
+// Загружаем настройки при загрузке страницы
+if (document.readyState === "loading") {
+  window.addEventListener("DOMContentLoaded", loadSavedSettings);
+} else {
+  loadSavedSettings();
+}
+
+function closeSettingsModal() {
+  const modal = document.getElementById("settingsModal");
+  modal.classList.remove("active");
+}
+
+// Инициализация модального окна настроек
+(function() {
+  const settingsModal = document.getElementById("settingsModal");
+  const closeBtn = document.getElementById("closeSettingsModal");
+  
+  if (settingsModal && closeBtn) {
+    closeBtn.addEventListener("click", closeSettingsModal);
+    settingsModal.addEventListener("click", (e) => {
+      if (e.target === settingsModal) {
+        closeSettingsModal();
+      }
+    });
+  }
+})();
 
 function initPlanBuilder() {
   const builder = document.querySelector(".plan-builder");
@@ -300,7 +630,11 @@ function initPlanBuilder() {
     if (devices < 1) devices = 1;
     const price = devices * selectedMonths * PLAN_RATE;
     if (priceButton) {
-      priceButton.textContent = `Подключить • ${price.toLocaleString("ru-RU")} ₽`;
+      // Получаем текущую валюту из localStorage или используем по умолчанию
+      const savedCurrency = localStorage.getItem("setting_currency");
+      const currentCurrency = savedCurrency || settingsData.currency?.currentValue || "₽ (RUB)";
+      const currencySymbol = currentCurrency.split(" ")[0];
+      priceButton.textContent = `Подключить • ${price.toLocaleString("ru-RU")} ${currencySymbol}`;
     }
   };
 
