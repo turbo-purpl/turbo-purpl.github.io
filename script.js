@@ -48,26 +48,36 @@ const views = {
     </section>
   `,
   plans: `
-    <section class="card">
-      <h2>Тарифы MetalVPN</h2>
-      <p class="subtitle">Выберите подходящий тариф и получите максимум скорости.</p>
-      <div class="grid">
-        <article class="widget">
-          <p class="label">Lite</p>
-          <p class="value">399 ₽·мес</p>
-          <p class="muted">1 устройство · 100 Мбит/с</p>
-        </article>
-        <article class="widget">
-          <p class="label">Pro</p>
-          <p class="value">799 ₽·мес</p>
-          <p class="muted">5 устройств · 500 Мбит/с</p>
-        </article>
-        <article class="widget">
-          <p class="label">Infinite</p>
-          <p class="value">1 199 ₽·мес</p>
-          <p class="muted">∞ устройств · 1 Гбит/с</p>
-        </article>
+    <section class="plan-builder">
+      <div class="plan-field">
+        <p class="label">Протокол</p>
+        <div class="segmented segmented-disabled">
+          <button class="segment active" data-type="protocol" data-value="openvpn">OpenVPN</button>
+        </div>
       </div>
+
+      <div class="plan-field">
+        <p class="label">Количество устройств</p>
+        <div class="segmented" data-segment="devices">
+          <button class="segment active" data-type="devices" data-value="1">1</button>
+          <button class="segment" data-type="devices" data-value="2">2</button>
+          <button class="segment" data-type="devices" data-value="custom">Указать</button>
+        </div>
+        <div class="devices-custom hidden">
+          <input type="number" min="1" placeholder="Например 5" inputmode="numeric" />
+        </div>
+      </div>
+
+      <div class="plan-field">
+        <p class="label">Срок</p>
+        <div class="segmented" data-segment="months">
+          <button class="segment active" data-type="months" data-value="1">1 месяц</button>
+          <button class="segment" data-type="months" data-value="2">2 месяца</button>
+          <button class="segment" data-type="months" data-value="3">3 месяца</button>
+        </div>
+      </div>
+
+      <button class="plan-submit">Подключить • 50 ₽</button>
     </section>
   `,
   billing: `
@@ -117,11 +127,13 @@ const swapView = (viewKey) => {
   window.requestAnimationFrame(() => {
     content.innerHTML = views[viewKey];
     content.classList.remove("fade");
+    initDynamicView(viewKey);
   });
 };
 
 // initial render to keep markup in sync
 swapView("home");
+initDynamicView("home");
 
 tabButtons.forEach((button) => {
   button.addEventListener("click", () => {
@@ -256,4 +268,75 @@ if (modalPrimaryBtn) {
     setTimeout(checkIcons, 200);
   }
 })();
+
+function initDynamicView(viewKey) {
+  if (viewKey === "plans") {
+    initPlanBuilder();
+  }
+}
+
+function initPlanBuilder() {
+  const builder = document.querySelector(".plan-builder");
+  if (!builder) return;
+
+  const PLAN_RATE = 50;
+  let selectedDevices = 1;
+  let selectedMonths = 1;
+  let customSelected = false;
+
+  const segmentedGroups = builder.querySelectorAll(".segmented [data-value]");
+  const customInputWrap = builder.querySelector(".devices-custom");
+  const customInput = builder.querySelector(".devices-custom input");
+  const priceButton = builder.querySelector(".plan-submit");
+
+  const setActive = (btn) => {
+    const group = btn.closest(".segmented");
+    group.querySelectorAll("[data-value]").forEach((el) => el.classList.remove("active"));
+    btn.classList.add("active");
+  };
+
+  const updatePrice = () => {
+    let devices = customSelected ? parseInt(customInput.value, 10) || 1 : selectedDevices;
+    if (devices < 1) devices = 1;
+    const price = devices * selectedMonths * PLAN_RATE;
+    if (priceButton) {
+      priceButton.textContent = `Подключить • ${price.toLocaleString("ru-RU")} ₽`;
+    }
+  };
+
+  segmentedGroups.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const type = btn.dataset.type;
+      const value = btn.dataset.value;
+      setActive(btn);
+
+      if (type === "devices") {
+        if (value === "custom") {
+          customSelected = true;
+          customInputWrap?.classList.remove("hidden");
+          customInput?.focus();
+        } else {
+          customSelected = false;
+          customInputWrap?.classList.add("hidden");
+          selectedDevices = parseInt(value, 10);
+        }
+      }
+
+      if (type === "months") {
+        selectedMonths = parseInt(value, 10);
+      }
+
+      updatePrice();
+    });
+  });
+
+  if (customInput) {
+    customInput.addEventListener("input", () => {
+      customSelected = true;
+      updatePrice();
+    });
+  }
+
+  updatePrice();
+}
 
