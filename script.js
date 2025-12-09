@@ -7,11 +7,12 @@ const CONFIG = {
     },
     languages: ['Русский', 'English', '中文', 'Español'],
     currencies: ['₽ (RUB)', '$ (USD)', '€ (EUR)', '¥ (CNY)'],
-    // API URL - используем относительный путь для обхода CORS
-    // Бот должен быть доступен на том же домене или через прокси
-    apiUrl: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    // API URL - только для локальной разработки
+    // В продакшене используем только Telegram WebApp API (tg.sendData)
+    // Fallback на прямой API работает только локально
+    apiUrl: (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
         ? 'http://localhost:8080' 
-        : window.location.origin // Используем тот же домен
+        : '' // В продакшене не используем прямой API, только WebApp API
 };
 
 // Telegram WebApp API
