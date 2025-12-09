@@ -7,12 +7,25 @@ const CONFIG = {
     },
     languages: ['Русский', 'English', '中文', 'Español'],
     currencies: ['₽ (RUB)', '$ (USD)', '€ (EUR)', '¥ (CNY)'],
-    // API URL - только для локальной разработки
-    // В продакшене используем только Telegram WebApp API (tg.sendData)
-    // Fallback на прямой API работает только локально
-    apiUrl: (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-        ? 'http://localhost:8080' 
-        : '' // В продакшене не используем прямой API, только WebApp API
+    // API URL - получаем из параметров URL (ngrok) или используем локальный
+    apiUrl: (() => {
+        // Пытаемся получить ngrok URL из параметров
+        const urlParams = new URLSearchParams(window.location.search);
+        const apiUrlParam = urlParams.get('api_url');
+        
+        if (apiUrlParam) {
+            console.log('Using ngrok API URL:', apiUrlParam);
+            return apiUrlParam;
+        }
+        
+        // Для локальной разработки
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            return 'http://localhost:8080';
+        }
+        
+        // В продакшене без ngrok - используем только WebApp API
+        return '';
+    })()
 };
 
 // Telegram WebApp API
