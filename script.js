@@ -71,15 +71,26 @@ const API = {
     },
 
     async createPayment(amount, method) {
-        if (!userId) return null;
+        if (!userId) {
+            console.error('User ID not available');
+            return null;
+        }
         try {
             const response = await fetch(`${CONFIG.apiUrl}/api/payment/create`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ user_id: userId, amount, method })
             });
-            if (!response.ok) throw new Error('Failed to create payment');
-            return await response.json();
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Payment creation failed:', response.status, errorText);
+                throw new Error(`Failed to create payment: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('Payment created successfully:', data);
+            return data;
         } catch (error) {
             console.error('Error creating payment:', error);
             return null;
@@ -1319,9 +1330,26 @@ class ProfileManager {
                 emailEl.classList.remove('skeleton-text');
             }
 
-            // Обновляем аватар (если есть URL)
+            // Обновляем аватар
             if (avatar) {
-                if (this.userData.avatar_url) {
+                // Пытаемся получить аватар из Telegram WebApp
+                if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                    const tgUser = tg.initDataUnsafe.user;
+                    // Telegram не предоставляет прямой URL аватара в WebApp
+                    // Создаем цветной фон с инициалами
+                    const initials = (tgUser.first_name?.[0] || '') + (tgUser.last_name?.[0] || '');
+                    if (initials) {
+                        avatar.textContent = initials.toUpperCase();
+                        avatar.style.background = `linear-gradient(135deg, #667eea 0%, #764ba2 100%)`;
+                        avatar.style.display = 'flex';
+                        avatar.style.alignItems = 'center';
+                        avatar.style.justifyContent = 'center';
+                        avatar.style.color = 'white';
+                        avatar.style.fontSize = '24px';
+                        avatar.style.fontWeight = '600';
+                        avatar.style.backgroundImage = 'none';
+                    }
+                } else if (this.userData.avatar_url) {
                     avatar.style.backgroundImage = `url(${this.userData.avatar_url})`;
                     avatar.style.backgroundSize = 'cover';
                     avatar.style.backgroundPosition = 'center';
