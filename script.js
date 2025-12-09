@@ -20,11 +20,26 @@ function initTelegramWebApp() {
         tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
-        userId = tg.initDataUnsafe?.user?.id || tg.initDataUnsafe?.user_id;
-        return true;
+        
+        // Получаем user_id из initDataUnsafe
+        const initData = tg.initDataUnsafe;
+        if (initData && initData.user) {
+            userId = initData.user.id;
+            console.log('Telegram WebApp initialized, user_id:', userId);
+            console.log('User data:', initData.user);
+            return true;
+        } else {
+            console.warn('User data not available in initDataUnsafe');
+            // Пытаемся получить из query string
+            const urlParams = new URLSearchParams(window.location.search);
+            userId = urlParams.get('user_id') || null;
+            if (userId) {
+                console.log('User ID from URL:', userId);
+                return true;
+            }
+        }
     }
-    // Для тестирования без Telegram
-    userId = 123456789; // Тестовый ID
+    console.warn('Telegram WebApp not available');
     return false;
 }
 
@@ -1267,20 +1282,39 @@ class ProfileManager {
             emailEl.classList.add('skeleton-text');
         }
 
-        // Загружаем данные
+        // Если есть данные из Telegram WebApp, используем их сразу
+        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            const tgUser = tg.initDataUnsafe.user;
+            
+            // Обновляем имя из Telegram
+            if (nameEl) {
+                const fullName = [tgUser.first_name, tgUser.last_name]
+                    .filter(Boolean).join(' ') || 'Пользователь';
+                nameEl.textContent = fullName;
+                nameEl.classList.remove('skeleton-text');
+            }
+
+            // Обновляем username из Telegram
+            if (emailEl) {
+                emailEl.textContent = tgUser.username || tgUser.first_name || 'username';
+                emailEl.classList.remove('skeleton-text');
+            }
+        }
+
+        // Загружаем данные из API (баланс и т.д.)
         this.userData = await API.getUserData();
         
         if (this.userData) {
-            // Обновляем имя
-            if (nameEl) {
+            // Если имя не было установлено из Telegram, используем из API
+            if (nameEl && nameEl.classList.contains('skeleton-text')) {
                 const fullName = [this.userData.first_name, this.userData.last_name]
                     .filter(Boolean).join(' ') || 'Пользователь';
                 nameEl.textContent = fullName;
                 nameEl.classList.remove('skeleton-text');
             }
 
-            // Обновляем username
-            if (emailEl) {
+            // Если username не было установлено из Telegram, используем из API
+            if (emailEl && emailEl.classList.contains('skeleton-text')) {
                 emailEl.textContent = this.userData.username || 'username';
                 emailEl.classList.remove('skeleton-text');
             }
@@ -1309,11 +1343,11 @@ class ProfileManager {
             // Если данные не загрузились, убираем скелетоны через время
             setTimeout(() => {
                 if (avatar) avatar.classList.remove('skeleton-circle');
-                if (nameEl) {
+                if (nameEl && nameEl.classList.contains('skeleton-text')) {
                     nameEl.textContent = 'Пользователь';
                     nameEl.classList.remove('skeleton-text');
                 }
-                if (emailEl) {
+                if (emailEl && emailEl.classList.contains('skeleton-text')) {
                     emailEl.textContent = 'username';
                     emailEl.classList.remove('skeleton-text');
                 }
