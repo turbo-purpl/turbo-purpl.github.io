@@ -1310,6 +1310,36 @@ class ProfileManager {
                 emailEl.textContent = tgUser.username || tgUser.first_name || 'username';
                 emailEl.classList.remove('skeleton-text');
             }
+            
+            // Обновляем аватар из Telegram (инициалы)
+            if (avatar) {
+                const initials = (tgUser.first_name?.[0] || '') + (tgUser.last_name?.[0] || '');
+                if (initials) {
+                    avatar.textContent = initials.toUpperCase();
+                    avatar.style.background = `linear-gradient(135deg, #667eea 0%, #764ba2 100%)`;
+                    avatar.style.display = 'flex';
+                    avatar.style.alignItems = 'center';
+                    avatar.style.justifyContent = 'center';
+                    avatar.style.color = 'white';
+                    avatar.style.fontSize = '24px';
+                    avatar.style.fontWeight = '600';
+                    avatar.style.backgroundImage = 'none';
+                    avatar.classList.remove('skeleton-circle');
+                } else {
+                    // Если нет инициалов, используем первую букву имени
+                    const firstLetter = tgUser.first_name?.[0] || 'U';
+                    avatar.textContent = firstLetter.toUpperCase();
+                    avatar.style.background = `linear-gradient(135deg, #667eea 0%, #764ba2 100%)`;
+                    avatar.style.display = 'flex';
+                    avatar.style.alignItems = 'center';
+                    avatar.style.justifyContent = 'center';
+                    avatar.style.color = 'white';
+                    avatar.style.fontSize = '24px';
+                    avatar.style.fontWeight = '600';
+                    avatar.style.backgroundImage = 'none';
+                    avatar.classList.remove('skeleton-circle');
+                }
+            }
         }
 
         // Загружаем данные из API (баланс и т.д.)
@@ -1330,25 +1360,34 @@ class ProfileManager {
                 emailEl.classList.remove('skeleton-text');
             }
 
-            // Обновляем аватар
-            if (avatar) {
-                // Пытаемся получить аватар из Telegram WebApp
-                if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                    const tgUser = tg.initDataUnsafe.user;
-                    // Telegram не предоставляет прямой URL аватара в WebApp
-                    // Создаем цветной фон с инициалами
-                    const initials = (tgUser.first_name?.[0] || '') + (tgUser.last_name?.[0] || '');
-                    if (initials) {
-                        avatar.textContent = initials.toUpperCase();
-                        avatar.style.background = `linear-gradient(135deg, #667eea 0%, #764ba2 100%)`;
-                        avatar.style.display = 'flex';
-                        avatar.style.alignItems = 'center';
-                        avatar.style.justifyContent = 'center';
-                        avatar.style.color = 'white';
-                        avatar.style.fontSize = '24px';
-                        avatar.style.fontWeight = '600';
-                        avatar.style.backgroundImage = 'none';
-                    }
+            // Обновляем аватар (если еще не был установлен из Telegram)
+            if (avatar && avatar.classList.contains('skeleton-circle')) {
+                // Если аватар еще не был установлен, создаем с инициалами из API данных
+                const firstName = this.userData.first_name || '';
+                const lastName = this.userData.last_name || '';
+                const initials = (firstName[0] || '') + (lastName[0] || '');
+                
+                if (initials) {
+                    avatar.textContent = initials.toUpperCase();
+                    avatar.style.background = `linear-gradient(135deg, #667eea 0%, #764ba2 100%)`;
+                    avatar.style.display = 'flex';
+                    avatar.style.alignItems = 'center';
+                    avatar.style.justifyContent = 'center';
+                    avatar.style.color = 'white';
+                    avatar.style.fontSize = '24px';
+                    avatar.style.fontWeight = '600';
+                    avatar.style.backgroundImage = 'none';
+                } else if (firstName) {
+                    // Если нет инициалов, используем первую букву имени
+                    avatar.textContent = firstName[0].toUpperCase();
+                    avatar.style.background = `linear-gradient(135deg, #667eea 0%, #764ba2 100%)`;
+                    avatar.style.display = 'flex';
+                    avatar.style.alignItems = 'center';
+                    avatar.style.justifyContent = 'center';
+                    avatar.style.color = 'white';
+                    avatar.style.fontSize = '24px';
+                    avatar.style.fontWeight = '600';
+                    avatar.style.backgroundImage = 'none';
                 } else if (this.userData.avatar_url) {
                     avatar.style.backgroundImage = `url(${this.userData.avatar_url})`;
                     avatar.style.backgroundSize = 'cover';
