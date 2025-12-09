@@ -18,6 +18,9 @@ const CONFIG = {
 let tg = null;
 let userId = null;
 
+// Хранилище ожидающих ответов
+const pendingRequests = new Map();
+
 // Инициализация Telegram WebApp
 function initTelegramWebApp() {
     if (window.Telegram && window.Telegram.WebApp) {
@@ -32,10 +35,9 @@ function initTelegramWebApp() {
             console.log('Telegram WebApp initialized, user_id:', userId);
             console.log('User data:', initData.user);
             
-            // Настраиваем обработчик ответов от бота
-            tg.onEvent('viewportChanged', () => {
-                // Обработка изменений viewport
-            });
+            // Настраиваем обработчик ответов от бота через BackButton
+            // Telegram WebApp получает ответы через обновление данных
+            // Используем механизм ожидания ответа через таймаут и проверку
             
             return true;
         } else {
