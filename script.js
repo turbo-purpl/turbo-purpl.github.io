@@ -36,9 +36,16 @@ function initTelegramWebApp() {
             console.log('Telegram WebApp initialized, user_id:', userId);
             console.log('User data:', initData.user);
             
-            // Настраиваем обработчик ответов от бота через BackButton
-            // Telegram WebApp получает ответы через обновление данных
-            // Используем механизм ожидания ответа через таймаут и проверку
+            // Настраиваем обработчик событий от Telegram
+            // Используем tg.onEvent для получения обновлений
+            tg.onEvent('viewportChanged', (event) => {
+                console.log('Viewport changed:', event);
+            });
+            
+            // Обработчик закрытия веб-приложения
+            tg.onEvent('close', () => {
+                console.log('WebApp closing');
+            });
             
             return true;
         } else {
@@ -1701,7 +1708,10 @@ let app;
 // Инициализация при загрузке DOM
 document.addEventListener('DOMContentLoaded', () => {
     // Инициализируем Telegram WebApp
-    initTelegramWebApp();
+    if (initTelegramWebApp()) {
+        // Настраиваем механизм получения ответов от бота
+        API.setupResponseListener();
+    }
     
     // Добавляем скелетоны для иконок до загрузки
     document.querySelectorAll('.material-symbols-outlined').forEach(icon => {
