@@ -76,11 +76,14 @@ const API = {
             return null;
         }
         try {
+            console.log('Creating payment:', { user_id: userId, amount, method });
             const response = await fetch(`${CONFIG.apiUrl}/api/payment/create`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ user_id: userId, amount, method })
             });
+            
+            console.log('Payment response status:', response.status, response.statusText);
             
             if (!response.ok) {
                 const errorText = await response.text();
@@ -90,6 +93,13 @@ const API = {
             
             const data = await response.json();
             console.log('Payment created successfully:', data);
+            
+            // Проверяем, что данные валидны
+            if (!data || !data.payment_id) {
+                console.error('Invalid payment data:', data);
+                return null;
+            }
+            
             return data;
         } catch (error) {
             console.error('Error creating payment:', error);
