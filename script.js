@@ -7,11 +7,11 @@ const CONFIG = {
     },
     languages: ['Русский', 'English', '中文', 'Español'],
     currencies: ['₽ (RUB)', '$ (USD)', '€ (EUR)', '¥ (CNY)'],
-    // API URL - для локальной разработки используйте http://localhost:8080
-    // Для продакшена укажите публичный URL вашего API сервера
+    // API URL - используем относительный путь для обхода CORS
+    // Бот должен быть доступен на том же домене или через прокси
     apiUrl: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
         ? 'http://localhost:8080' 
-        : 'https://your-api-server.com' // ЗАМЕНИТЕ на ваш публичный API сервер
+        : window.location.origin // Используем тот же домен
 };
 
 // Telegram WebApp API
@@ -31,6 +31,12 @@ function initTelegramWebApp() {
             userId = initData.user.id;
             console.log('Telegram WebApp initialized, user_id:', userId);
             console.log('User data:', initData.user);
+            
+            // Настраиваем обработчик ответов от бота
+            tg.onEvent('viewportChanged', () => {
+                // Обработка изменений viewport
+            });
+            
             return true;
         } else {
             console.warn('User data not available in initDataUnsafe');
@@ -113,26 +119,42 @@ const API = {
 
     async checkPayment(paymentId) {
         try {
-            const response = await fetch(`${CONFIG.apiUrl}/api/payment/check?payment_id=${paymentId}`);
-            if (!response.ok) throw new Error('Failed to check payment');
-            return await response.json();
+            const response = await this.sendToBot('check_payment', { payment_id: paymentId });
+            return response;
         } catch (error) {
             console.error('Error checking payment:', error);
+            // Fallback на прямой API
+            if (CONFIG.apiUrl) {
+                try {
+                    const response = await fetch(`${CONFIG.apiUrl}/api/payment/check?payment_id=${paymentId}`);
+                    if (response.ok) return await response.json();
+                } catch (e) {
+                    console.error('Fallback API also failed:', e);
+                }
+            }
             return null;
         }
     },
 
     async confirmPayment(memo) {
         try {
-            const response = await fetch(`${CONFIG.apiUrl}/api/payment/confirm`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ memo })
-            });
-            if (!response.ok) throw new Error('Failed to confirm payment');
-            return await response.json();
+            const response = await this.sendToBot('confirm_payment', { memo });
+            return response;
         } catch (error) {
             console.error('Error confirming payment:', error);
+            // Fallback на прямой API
+            if (CONFIG.apiUrl) {
+                try {
+                    const response = await fetch(`${CONFIG.apiUrl}/api/payment/confirm`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ memo })
+                    });
+                    if (response.ok) return await response.json();
+                } catch (e) {
+                    console.error('Fallback API also failed:', e);
+                }
+            }
             return null;
         }
     }
