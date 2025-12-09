@@ -55,14 +55,91 @@ function initTelegramWebApp() {
     return false;
 }
 
-// API Client
+// API Client через Telegram WebApp
 const API = {
+    // Генерация уникального ID запроса
+    generateRequestId() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    },
+
+    // Отправка данных боту через Telegram WebApp
+    async sendToBot(action, data = {}) {
+        return new Promise((resolve, reject) => {
+            if (!tg || !tg.sendData) {
+                console.warn('Telegram WebApp sendData not available, using fallback API');
+                // Сразу пробуем fallback
+                this.fallbackAPI(action, data)
+                    .then(resolve)
+                    .catch(reject);
+                return;
+            }
+            
+            const requestId = this.generateRequestId();
+            const requestData = JSON.stringify({ 
+                action, 
+                request_id: requestId,
+                ...data 
+            });
+            
+            console.log('Sending to bot via WebApp:', requestData);
+            
+            // Сохраняем промис для разрешения позже
+            pendingRequests.set(requestId, { resolve, reject, action });
+            
+            // Отправляем данные боту
+            tg.sendData(requestData);
+            
+            // Таймаут на случай, если ответ не придет
+            setTimeout(() => {
+                if (pendingRequests.has(requestId)) {
+                    pendingRequests.delete(requestId);
+                    // Пробуем fallback API
+                    console.log('WebApp timeout, trying fallback API...');
+                    this.fallbackAPI(action, data)
+                        .then(resolve)
+                        .catch(reject);
+                }
+            }, 5000);
+        });
+    },
+
+    // Fallback на прямой API, если WebApp не работает
+    async fallbackAPI(action, data) {
+        if (!CONFIG.apiUrl || CONFIG.apiUrl === window.location.origin) {
+            throw new Error('API URL not configured');
+        }
+        
+        const user_id = userId || data.user_id;
+        
+        switch(action) {
+            case 'get_user_data':
+                const userResponse = await fetch(`${CONFIG.apiUrl}/api/user?user_id=${user_id}`);
+                if (userResponse.ok) return await userResponse.json();
+                break;
+            case 'get_operations':
+                const opsResponse = await fetch(`${CONFIG.apiUrl}/api/operations?user_id=${user_id}`);
+                if (opsResponse.ok) {
+                    const opsData = await opsResponse.json();
+                    return { operations: opsData.operations || [] };
+                }
+                break;
+            case 'create_payment':
+                const payResponse = await fetch(`${CONFIG.apiUrl}/api/payment/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id, amount: data.amount, method: data.method })
+                });
+                if (payResponse.ok) return await payResponse.json();
+                break;
+        }
+        throw new Error('Fallback API failed');
+    },
+
     async getUserData() {
         if (!userId) return null;
         try {
-            const response = await fetch(`${CONFIG.apiUrl}/api/user?user_id=${userId}`);
-            if (!response.ok) throw new Error('Failed to fetch user data');
-            return await response.json();
+            const response = await this.sendToBot('get_user_data', { user_id: userId });
+            return response.data || response;
         } catch (error) {
             console.error('Error fetching user data:', error);
             return null;
@@ -72,10 +149,8 @@ const API = {
     async getOperations() {
         if (!userId) return [];
         try {
-            const response = await fetch(`${CONFIG.apiUrl}/api/operations?user_id=${userId}`);
-            if (!response.ok) throw new Error('Failed to fetch operations');
-            const data = await response.json();
-            return data.operations || [];
+            const response = await this.sendToBot('get_operations', { user_id: userId });
+            return (response.data && response.data.operations) || response.operations || [];
         } catch (error) {
             console.error('Error fetching operations:', error);
             return [];
@@ -88,31 +163,22 @@ const API = {
             return null;
         }
         try {
-            console.log('Creating payment:', { user_id: userId, amount, method });
-            const response = await fetch(`${CONFIG.apiUrl}/api/payment/create`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_id: userId, amount, method })
+            console.log('Creating payment via Telegram WebApp:', { user_id: userId, amount, method });
+            const response = await this.sendToBot('create_payment', { 
+                user_id: userId, 
+                amount, 
+                method 
             });
+            console.log('Payment created successfully:', response);
             
-            console.log('Payment response status:', response.status, response.statusText);
+            const paymentData = response.data || response;
             
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Payment creation failed:', response.status, errorText);
-                throw new Error(`Failed to create payment: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            console.log('Payment created successfully:', data);
-            
-            // Проверяем, что данные валидны
-            if (!data || !data.payment_id) {
-                console.error('Invalid payment data:', data);
+            if (!paymentData || !paymentData.payment_id) {
+                console.error('Invalid payment data:', paymentData);
                 return null;
             }
             
-            return data;
+            return paymentData;
         } catch (error) {
             console.error('Error creating payment:', error);
             return null;
