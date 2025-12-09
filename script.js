@@ -6,8 +6,103 @@ const CONFIG = {
         period: { 1: 1, 2: 1.8, 3: 2.5 }
     },
     languages: ['Русский', 'English', '中文', 'Español'],
-    currencies: ['₽ (RUB)', '$ (USD)', '€ (EUR)', '¥ (CNY)']
+    currencies: ['₽ (RUB)', '$ (USD)', '€ (EUR)', '¥ (CNY)'],
+    apiUrl: 'http://localhost:8080' // Локальный API сервер
 };
+
+// Telegram WebApp API
+let tg = null;
+let userId = null;
+
+// Инициализация Telegram WebApp
+function initTelegramWebApp() {
+    if (window.Telegram && window.Telegram.WebApp) {
+        tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+        userId = tg.initDataUnsafe?.user?.id || tg.initDataUnsafe?.user_id;
+        return true;
+    }
+    // Для тестирования без Telegram
+    userId = 123456789; // Тестовый ID
+    return false;
+}
+
+// API Client
+const API = {
+    async getUserData() {
+        if (!userId) return null;
+        try {
+            const response = await fetch(`${CONFIG.apiUrl}/api/user?user_id=${userId}`);
+            if (!response.ok) throw new Error('Failed to fetch user data');
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+            return null;
+        }
+    },
+
+    async getOperations() {
+        if (!userId) return [];
+        try {
+            const response = await fetch(`${CONFIG.apiUrl}/api/operations?user_id=${userId}`);
+            if (!response.ok) throw new Error('Failed to fetch operations');
+            const data = await response.json();
+            return data.operations || [];
+        } catch (error) {
+            console.error('Error fetching operations:', error);
+            return [];
+        }
+    },
+
+    async createPayment(amount, method) {
+        if (!userId) return null;
+        try {
+            const response = await fetch(`${CONFIG.apiUrl}/api/payment/create`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: userId, amount, method })
+            });
+            if (!response.ok) throw new Error('Failed to create payment');
+            return await response.json();
+        } catch (error) {
+            console.error('Error creating payment:', error);
+            return null;
+        }
+    },
+
+    async checkPayment(paymentId) {
+        try {
+            const response = await fetch(`${CONFIG.apiUrl}/api/payment/check?payment_id=${paymentId}`);
+            if (!response.ok) throw new Error('Failed to check payment');
+            return await response.json();
+        } catch (error) {
+            console.error('Error checking payment:', error);
+            return null;
+        }
+    },
+
+    async confirmPayment(memo) {
+        try {
+            const response = await fetch(`${CONFIG.apiUrl}/api/payment/confirm`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ memo })
+            });
+            if (!response.ok) throw new Error('Failed to confirm payment');
+            return await response.json();
+        } catch (error) {
+            console.error('Error confirming payment:', error);
+            return null;
+        }
+    }
+};
+
+// Генерация QR кода
+function generateQRCode(text) {
+    // Используем внешний сервис для генерации QR кода
+    return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(text)}`;
+}
 
 // Утилиты
 const Utils = {
@@ -199,6 +294,9 @@ class NavigationManager {
 class ModalManager {
     constructor() {
         this.activeModal = null;
+        this.paymentCheckInterval = null;
+        this.currentPaymentId = null;
+        this.currentPaymentMemo = null;
         this.init();
     }
 
@@ -333,15 +431,17 @@ class ModalManager {
 
         // Подтверждение
         if (confirmBtn) {
-            confirmBtn.addEventListener('click', () => {
+            confirmBtn.addEventListener('click', async () => {
                 const selectedAmount = this.getSelectedAmount();
                 const selectedMethod = this.getSelectedPaymentMethod();
                 
                 if (selectedAmount && selectedMethod) {
-                    console.log('Topup:', { amount: selectedAmount, method: selectedMethod });
-                    // Добавляем операцию в историю
-                    this.addOperationToHistory('Пополнение', selectedAmount, true, selectedMethod);
-                    this.close('topupModal');
+                    if (selectedMethod === 'ton-ton') {
+                        await this.processTonPayment(selectedAmount);
+                    } else {
+                        // Telegram Stars пока не реализован
+                        console.log('Telegram Stars payment not implemented yet');
+                    }
                 }
             });
         }
@@ -373,6 +473,189 @@ class ModalManager {
         document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('active'));
         const customInput = document.getElementById('customAmount');
         if (customInput) customInput.value = '';
+        
+        // Очищаем контент модального окна от платежной информации
+        const modalContent = document.querySelector('#topupModal .modal-content');
+        if (modalContent) {
+            const existingPaymentInfo = document.getElementById('paymentInfo');
+            if (existingPaymentInfo) {
+                existingPaymentInfo.remove();
+            }
+        }
+        
+        // Останавливаем проверку статуса платежа
+        if (this.paymentCheckInterval) {
+            clearInterval(this.paymentCheckInterval);
+            this.paymentCheckInterval = null;
+        }
+        this.currentPaymentId = null;
+        this.currentPaymentMemo = null;
+    }
+
+    async processTonPayment(amount) {
+        // Создаем платеж через API
+        const payment = await API.createPayment(amount, 'ton-ton');
+        
+        if (!payment) {
+            alert('Ошибка при создании платежа. Попробуйте позже.');
+            return;
+        }
+
+        // Сохраняем payment_id для проверки статуса
+        this.currentPaymentId = payment.payment_id;
+        this.currentPaymentMemo = payment.memo;
+
+        // Показываем информацию о платеже
+        this.showPaymentInfo(payment);
+
+        // Пытаемся открыть кошелек через ton:// ссылку
+        try {
+            window.location.href = payment.ton_url;
+            
+            // Если редирект не сработал, показываем QR код
+            setTimeout(() => {
+                this.checkPaymentStatus();
+            }, 1000);
+        } catch (e) {
+            // Если не удалось открыть ton://, сразу показываем QR код
+            this.checkPaymentStatus();
+        }
+    }
+
+    showPaymentInfo(payment) {
+        const modalContent = document.querySelector('#topupModal .modal-content');
+        if (!modalContent) return;
+
+        // Удаляем старую информацию о платеже, если есть
+        const existingPaymentInfo = document.getElementById('paymentInfo');
+        if (existingPaymentInfo) {
+            existingPaymentInfo.remove();
+        }
+
+        // Скрываем форму выбора суммы и способа оплаты
+        const amountSelector = document.querySelector('.amount-selector');
+        const paymentMethods = document.querySelector('.payment-methods');
+        if (amountSelector) amountSelector.style.display = 'none';
+        if (paymentMethods) paymentMethods.style.display = 'none';
+
+        // Создаем контейнер для информации о платеже
+        const paymentInfo = document.createElement('div');
+        paymentInfo.id = 'paymentInfo';
+        paymentInfo.style.cssText = 'text-align: center; padding: 20px 0;';
+
+        // QR код
+        const qrCode = generateQRCode(payment.ton_url);
+        paymentInfo.innerHTML = `
+            <div style="margin-bottom: 24px;">
+                <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px; font-weight: 500;">
+                    Ожидаем поступление платежа
+                </div>
+                <img src="${qrCode}" alt="QR Code" style="width: 200px; height: 200px; border-radius: 12px; background: white; padding: 10px;">
+            </div>
+            
+            <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 16px; margin-bottom: 16px;">
+                <div style="margin-bottom: 12px;">
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px;">Кошелек</div>
+                    <div style="font-size: 0.9rem; color: var(--text-primary); font-family: monospace; word-break: break-all; cursor: pointer;" 
+                         onclick="navigator.clipboard.writeText('${payment.wallet}'); this.style.opacity='0.5'; setTimeout(() => this.style.opacity='1', 200);">
+                        ${payment.wallet}
+                    </div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px;">Сумма</div>
+                    <div style="font-size: 1.1rem; color: var(--text-primary); font-weight: 600;">
+                        ${payment.amount} ₽
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px;">Комментарий (мемо)</div>
+                    <div style="font-size: 0.9rem; color: var(--text-primary); font-family: monospace; word-break: break-all; cursor: pointer;" 
+                         onclick="navigator.clipboard.writeText('${payment.memo}'); this.style.opacity='0.5'; setTimeout(() => this.style.opacity='1', 200);">
+                        ${payment.memo}
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary btn-block" id="backToTopupBtn" style="margin-top: 12px;">
+                Назад
+            </button>
+        `;
+
+        modalContent.appendChild(paymentInfo);
+
+        // Обработчик кнопки "Назад"
+        const backBtn = document.getElementById('backToTopupBtn');
+        if (backBtn) {
+            backBtn.addEventListener('click', () => {
+                // Восстанавливаем форму
+                if (amountSelector) amountSelector.style.display = 'block';
+                if (paymentMethods) paymentMethods.style.display = 'block';
+                paymentInfo.remove();
+                this.resetTopupModal();
+            });
+        }
+
+        // Начинаем проверку статуса платежа
+        this.startPaymentStatusCheck();
+    }
+
+    startPaymentStatusCheck() {
+        if (this.paymentCheckInterval) {
+            clearInterval(this.paymentCheckInterval);
+        }
+
+        this.paymentCheckInterval = setInterval(async () => {
+            await this.checkPaymentStatus();
+        }, 3000); // Проверяем каждые 3 секунды
+    }
+
+    async checkPaymentStatus() {
+        if (!this.currentPaymentId) return;
+
+        const paymentStatus = await API.checkPayment(this.currentPaymentId);
+        
+        if (paymentStatus && paymentStatus.status === 'completed') {
+            // Платеж получен
+            clearInterval(this.paymentCheckInterval);
+            this.paymentCheckInterval = null;
+            this.showPaymentSuccess();
+            
+            // Обновляем баланс и историю операций
+            await this.updateBalance();
+            await this.loadOperationsHistory();
+            
+            // Обновляем профиль, если открыт
+            if (app && app.profile) {
+                await app.profile.loadUserData();
+            }
+        }
+    }
+
+    showPaymentSuccess() {
+        const paymentInfo = document.getElementById('paymentInfo');
+        if (!paymentInfo) return;
+
+        paymentInfo.innerHTML = `
+            <div style="text-align: center; padding: 40px 20px;">
+                <div style="font-size: 4rem; margin-bottom: 16px;">✅</div>
+                <div style="font-size: 1.2rem; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">
+                    Платеж получен!
+                </div>
+                <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 24px;">
+                    Средства зачислены на ваш баланс
+                </div>
+                <button class="btn btn-primary btn-block" id="closeTopupModalBtn">
+                    Закрыть
+                </button>
+            </div>
+        `;
+
+        const closeBtn = document.getElementById('closeTopupModalBtn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                this.close('topupModal');
+            });
+        }
     }
 
     addOperationToHistory(type, amount, isPositive, method = null) {
@@ -472,92 +755,67 @@ class ModalManager {
         return methods[method] || method;
     }
 
-    updateBalance() {
-        const operations = Utils.loadFromStorage('operations', []);
-        let totalBalance = 0;
-        let telegramStarsBalance = 0;
-        let tonTonBalance = 0;
-        let usdtTonBalance = 0;
+    async updateBalance() {
+        // Загружаем данные пользователя из API
+        const userData = await API.getUserData();
         
-        operations.forEach(op => {
-            if (op.isPositive) {
-                totalBalance += op.amount;
-                
-                // Подсчитываем баланс по способам оплаты
-                if (op.method === 'telegram-stars') {
-                    telegramStarsBalance += op.amount;
-                } else if (op.method === 'ton-ton') {
-                    tonTonBalance += op.amount;
-                } else if (op.method === 'usdt-ton') {
-                    usdtTonBalance += op.amount;
-                }
-            } else {
-                totalBalance -= op.amount;
+        if (userData) {
+            const telegramStarsElement = document.getElementById('balanceTelegramStars');
+            if (telegramStarsElement) {
+                telegramStarsElement.textContent = userData.telegram_stars || 0;
             }
-        });
 
-        const telegramStarsElement = document.getElementById('balanceTelegramStars');
-        if (telegramStarsElement) {
-            telegramStarsElement.textContent = telegramStarsBalance;
-        }
-
-        const tonTonElement = document.getElementById('balanceTonTon');
-        if (tonTonElement) {
-            tonTonElement.textContent = tonTonBalance;
-        }
-
-        const usdtTonElement = document.getElementById('balanceUsdtTon');
-        if (usdtTonElement) {
-            usdtTonElement.textContent = usdtTonBalance;
+            const tonTonElement = document.getElementById('balanceTonTon');
+            if (tonTonElement) {
+                tonTonElement.textContent = userData.ton_balance || 0;
+            }
         }
     }
 
-    loadOperationsHistory() {
-        let operations = Utils.loadFromStorage('operations', []);
+    async loadOperationsHistory() {
         const operationsList = document.querySelector('.operations-list');
         if (!operationsList) return;
 
-        // Валидация данных из localStorage
-        if (!Array.isArray(operations)) {
-            console.warn('Invalid operations data, resetting');
-            operations = [];
-            Utils.saveToStorage('operations', []);
-        }
+        // Показываем скелетон
+        operationsList.innerHTML = '<div class="operation-item skeleton-text" style="padding: 20px; text-align: center; min-height: 60px;">Загрузка...</div>';
 
-        // Если операций нет, инициализируем статические
+        // Загружаем операции из API
+        const operations = await API.getOperations();
+
+        // Очищаем список
+        operationsList.innerHTML = '';
+
         if (operations.length === 0) {
-            const staticOperations = [
-                { type: 'Пополнение', amount: 500, isPositive: true, method: null, date: '10.01.2025' },
-                { type: 'Подписка', amount: 500, isPositive: false, method: null, date: '01.01.2025' }
-            ];
-            Utils.saveToStorage('operations', staticOperations);
-            operations = staticOperations;
+            // Показываем сообщение об отсутствии операций
+            const emptyState = document.createElement('div');
+            emptyState.className = 'operations-empty';
+            emptyState.style.cssText = 'text-align: center; padding: 40px 20px; color: var(--text-secondary);';
+            emptyState.innerHTML = `
+                <div style="font-size: 3rem; margin-bottom: 16px;">😔</div>
+                <div style="font-size: 1rem; font-weight: 500;">У вас пока нет операций</div>
+                <div style="font-size: 0.85rem; margin-top: 8px; opacity: 0.7;">История операций появится здесь после пополнения баланса</div>
+            `;
+            operationsList.appendChild(emptyState);
+            return;
         }
 
-        // Очищаем все операции безопасным способом
-        while (operationsList.firstChild) {
-            operationsList.removeChild(operationsList.firstChild);
-        }
-
-        // Загружаем сохраненные операции безопасным способом
+        // Отображаем операции
         operations.forEach(op => {
-            // Валидация каждой операции
             if (!op || typeof op !== 'object') return;
             
             const sanitizedType = Utils.validateString(op.type || '', 100);
             const sanitizedAmount = Utils.sanitizeNumber(op.amount, 0, 999999999);
-            const sanitizedIsPositive = Boolean(op.isPositive);
+            const isPositive = sanitizedType === 'Пополнение';
             const sanitizedMethod = op.method ? Utils.validateString(op.method, 50) : null;
             const sanitizedDate = Utils.validateString(op.date || '', 20);
 
             const operationItem = document.createElement('div');
             operationItem.className = 'operation-item';
             
-            const iconClass = sanitizedIsPositive ? 'positive' : 'negative';
-            const iconSymbol = sanitizedIsPositive ? 'add' : 'remove';
-            const amountClass = sanitizedIsPositive ? 'positive' : 'negative';
+            const iconClass = isPositive ? 'positive' : 'negative';
+            const iconSymbol = isPositive ? 'add' : 'remove';
+            const amountClass = isPositive ? 'positive' : 'negative';
 
-            // Создаем структуру через DOM API
             const operationContent = document.createElement('div');
             operationContent.className = 'operation-content';
             
@@ -953,10 +1211,11 @@ class GuideManager {
 // Управление настройками профиля
 class ProfileManager {
     constructor() {
+        this.userData = null;
         this.init();
     }
 
-    init() {
+    async init() {
         // Загружаем сохраненные настройки
         const language = Utils.loadFromStorage('language', 'Русский');
         const currency = Utils.loadFromStorage('currency', '₽ (RUB)');
@@ -967,10 +1226,13 @@ class ProfileManager {
         if (languageValue) languageValue.textContent = language;
         if (currencyValue) currencyValue.textContent = currency;
 
+        // Загружаем данные пользователя
+        await this.loadUserData();
+
         // Загружаем историю операций и обновляем баланс
         if (modalManager) {
-            modalManager.loadOperationsHistory();
-            modalManager.updateBalance();
+            await modalManager.loadOperationsHistory();
+            await modalManager.updateBalance();
         }
 
         // Обработчики кликов на настройки
@@ -987,6 +1249,76 @@ class ProfileManager {
                 }
             });
         });
+    }
+
+    async loadUserData() {
+        // Показываем скелетоны
+        const avatar = document.querySelector('.avatar');
+        const nameEl = document.querySelector('.profile-name-simple');
+        const emailEl = document.querySelector('.profile-email-simple');
+        
+        if (avatar) avatar.classList.add('skeleton-circle');
+        if (nameEl) {
+            nameEl.textContent = '';
+            nameEl.classList.add('skeleton-text');
+        }
+        if (emailEl) {
+            emailEl.textContent = '';
+            emailEl.classList.add('skeleton-text');
+        }
+
+        // Загружаем данные
+        this.userData = await API.getUserData();
+        
+        if (this.userData) {
+            // Обновляем имя
+            if (nameEl) {
+                const fullName = [this.userData.first_name, this.userData.last_name]
+                    .filter(Boolean).join(' ') || 'Пользователь';
+                nameEl.textContent = fullName;
+                nameEl.classList.remove('skeleton-text');
+            }
+
+            // Обновляем username
+            if (emailEl) {
+                emailEl.textContent = this.userData.username || 'username';
+                emailEl.classList.remove('skeleton-text');
+            }
+
+            // Обновляем аватар (если есть URL)
+            if (avatar) {
+                if (this.userData.avatar_url) {
+                    avatar.style.backgroundImage = `url(${this.userData.avatar_url})`;
+                    avatar.style.backgroundSize = 'cover';
+                    avatar.style.backgroundPosition = 'center';
+                }
+                avatar.classList.remove('skeleton-circle');
+            }
+
+            // Обновляем баланс
+            const telegramStarsEl = document.getElementById('balanceTelegramStars');
+            const tonTonEl = document.getElementById('balanceTonTon');
+            
+            if (telegramStarsEl) {
+                telegramStarsEl.textContent = this.userData.telegram_stars || 0;
+            }
+            if (tonTonEl) {
+                tonTonEl.textContent = this.userData.ton_balance || 0;
+            }
+        } else {
+            // Если данные не загрузились, убираем скелетоны через время
+            setTimeout(() => {
+                if (avatar) avatar.classList.remove('skeleton-circle');
+                if (nameEl) {
+                    nameEl.textContent = 'Пользователь';
+                    nameEl.classList.remove('skeleton-text');
+                }
+                if (emailEl) {
+                    emailEl.textContent = 'username';
+                    emailEl.classList.remove('skeleton-text');
+                }
+            }, 2000);
+        }
     }
 
     highlightSupportButton() {
@@ -1153,6 +1485,9 @@ let app;
 
 // Инициализация при загрузке DOM
 document.addEventListener('DOMContentLoaded', () => {
+    // Инициализируем Telegram WebApp
+    initTelegramWebApp();
+    
     // Добавляем скелетоны для иконок до загрузки
     document.querySelectorAll('.material-symbols-outlined').forEach(icon => {
         icon.classList.add('skeleton-icon');
