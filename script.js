@@ -7,7 +7,11 @@ const CONFIG = {
     },
     languages: ['Русский', 'English', '中文', 'Español'],
     currencies: ['₽ (RUB)', '$ (USD)', '€ (EUR)', '¥ (CNY)'],
-    apiUrl: 'http://localhost:8080' // Локальный API сервер
+    // API URL - для локальной разработки используйте http://localhost:8080
+    // Для продакшена укажите публичный URL вашего API сервера
+    apiUrl: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+        ? 'http://localhost:8080' 
+        : 'https://your-api-server.com' // ЗАМЕНИТЕ на ваш публичный API сервер
 };
 
 // Telegram WebApp API
@@ -1321,34 +1325,43 @@ class ProfileManager {
                 emailEl.classList.remove('skeleton-text');
             }
             
-            // Обновляем аватар из Telegram (инициалы)
+            // Обновляем аватар из Telegram
             if (avatar) {
-                const initials = (tgUser.first_name?.[0] || '') + (tgUser.last_name?.[0] || '');
-                if (initials) {
-                    avatar.textContent = initials.toUpperCase();
-                    avatar.style.background = `linear-gradient(135deg, #667eea 0%, #764ba2 100%)`;
-                    avatar.style.display = 'flex';
-                    avatar.style.alignItems = 'center';
-                    avatar.style.justifyContent = 'center';
-                    avatar.style.color = 'white';
-                    avatar.style.fontSize = '24px';
-                    avatar.style.fontWeight = '600';
-                    avatar.style.backgroundImage = 'none';
-                    avatar.classList.remove('skeleton-circle');
+                // Пытаемся использовать photo_url из Telegram
+                if (tgUser.photo_url) {
+                    console.log('Using Telegram photo_url:', tgUser.photo_url);
+                    avatar.style.backgroundImage = `url(${tgUser.photo_url})`;
+                    avatar.style.backgroundSize = 'cover';
+                    avatar.style.backgroundPosition = 'center';
+                    avatar.textContent = '';
                 } else {
-                    // Если нет инициалов, используем первую букву имени
-                    const firstLetter = tgUser.first_name?.[0] || 'U';
-                    avatar.textContent = firstLetter.toUpperCase();
-                    avatar.style.background = `linear-gradient(135deg, #667eea 0%, #764ba2 100%)`;
-                    avatar.style.display = 'flex';
-                    avatar.style.alignItems = 'center';
-                    avatar.style.justifyContent = 'center';
-                    avatar.style.color = 'white';
-                    avatar.style.fontSize = '24px';
-                    avatar.style.fontWeight = '600';
-                    avatar.style.backgroundImage = 'none';
-                    avatar.classList.remove('skeleton-circle');
+                    // Если нет фото, создаем с инициалами
+                    const initials = (tgUser.first_name?.[0] || '') + (tgUser.last_name?.[0] || '');
+                    if (initials) {
+                        avatar.textContent = initials.toUpperCase();
+                        avatar.style.background = `linear-gradient(135deg, #667eea 0%, #764ba2 100%)`;
+                        avatar.style.display = 'flex';
+                        avatar.style.alignItems = 'center';
+                        avatar.style.justifyContent = 'center';
+                        avatar.style.color = 'white';
+                        avatar.style.fontSize = '24px';
+                        avatar.style.fontWeight = '600';
+                        avatar.style.backgroundImage = 'none';
+                    } else {
+                        // Если нет инициалов, используем первую букву имени
+                        const firstLetter = tgUser.first_name?.[0] || 'U';
+                        avatar.textContent = firstLetter.toUpperCase();
+                        avatar.style.background = `linear-gradient(135deg, #667eea 0%, #764ba2 100%)`;
+                        avatar.style.display = 'flex';
+                        avatar.style.alignItems = 'center';
+                        avatar.style.justifyContent = 'center';
+                        avatar.style.color = 'white';
+                        avatar.style.fontSize = '24px';
+                        avatar.style.fontWeight = '600';
+                        avatar.style.backgroundImage = 'none';
+                    }
                 }
+                avatar.classList.remove('skeleton-circle');
             }
         }
 
